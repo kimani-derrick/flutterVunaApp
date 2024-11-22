@@ -25,21 +25,21 @@ class PortfolioScreen extends StatelessWidget {
           _buildInvestmentItem(
             'Fixed Deposit',
             'Active',
-            '\$5,000',
+            'KES 5,000',
             '12%',
             Colors.green,
           ),
           _buildInvestmentItem(
             'Savings Account',
             'Active',
-            '\$3,000',
+            'KES 3,000',
             '5%',
             Colors.blue,
           ),
           _buildInvestmentItem(
             'Group Loan',
             'Completed',
-            '\$2,000',
+            'KES 2,000',
             '8%',
             Colors.grey,
           ),
@@ -64,7 +64,7 @@ class PortfolioScreen extends StatelessWidget {
             ),
             SizedBox(height: 8),
             Text(
-              '\$10,000.00',
+              'KES 10,000.00',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,

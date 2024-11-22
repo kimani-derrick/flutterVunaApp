@@ -77,7 +77,7 @@ class HomeScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 8),
                           const Text(
-                            '\$12,846.00',
+                            'KES 12,846.00',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 36,
@@ -124,21 +124,21 @@ class HomeScreen extends StatelessWidget {
                   const SizedBox(height: 16),
                   _buildTransactionItem(
                     'Savings Deposit',
-                    '+\$500.00',
+                    '+KES 500.00',
                     '2024-02-15',
                     FontAwesomeIcons.circlePlus,
                     Colors.green,
                   ),
                   _buildTransactionItem(
                     'Loan Payment',
-                    '-\$200.00',
+                    '-KES 200.00',
                     '2024-02-14',
                     FontAwesomeIcons.circleMinus,
                     Colors.red,
                   ),
                   _buildTransactionItem(
                     'Interest Earned',
-                    '+\$45.50',
+                    '+KES 45.50',
                     '2024-02-13',
                     FontAwesomeIcons.percent,
                     Colors.blue,
