@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'home_screen.dart';
-import 'portfolio_screen.dart';
 import 'invest_screen.dart';
 import 'profile_screen.dart';
 
@@ -9,17 +8,16 @@ class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
 
   @override
-  _MainScreenState createState() => _MainScreenState();
+  State<MainScreen> createState() => _MainScreenState();
 }
 
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
-  
-  final List<Widget> _screens = [
-    const HomeScreen(),
-    const PortfolioScreen(),
-    const InvestScreen(),
-    const ProfileScreen(),
+
+  static const List<Widget> _screens = <Widget>[
+    HomeScreen(),
+    InvestScreen(),
+    ProfileScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -54,70 +52,31 @@ class _MainScreenState extends State<MainScreen> {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  const Color(0xFF4C3FF7),
-                  const Color(0xFF9D3FFF).withOpacity(0.9),
+                  const Color(0xFF6C5DD3),
+                  const Color(0xFF8B80F8),
                 ],
               ),
             ),
             child: BottomNavigationBar(
-              type: BottomNavigationBarType.fixed,
-              currentIndex: _selectedIndex,
-              backgroundColor: Colors.transparent,
-              selectedItemColor: Colors.white,
-              unselectedItemColor: Colors.white.withOpacity(0.5),
-              selectedLabelStyle: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-              ),
-              unselectedLabelStyle: const TextStyle(
-                fontWeight: FontWeight.normal,
-                fontSize: 12,
-              ),
-              elevation: 0,
-              onTap: _onItemTapped,
               items: [
                 _buildNavItem(FontAwesomeIcons.house, 'Home'),
-                _buildNavItem(FontAwesomeIcons.chartLine, 'Portfolio'),
-                _buildNavItem(FontAwesomeIcons.handHoldingDollar, 'Invest'),
-                _buildNavItem(FontAwesomeIcons.userAlt, 'Profile'),
+                _buildNavItem(FontAwesomeIcons.chartLine, 'Invest'),
+                _buildNavItem(FontAwesomeIcons.user, 'Profile'),
               ],
+              currentIndex: _selectedIndex,
+              selectedItemColor: Colors.white,
+              unselectedItemColor: Colors.white.withOpacity(0.5),
+              backgroundColor: Colors.transparent,
+              type: BottomNavigationBarType.fixed,
+              selectedFontSize: 12,
+              unselectedFontSize: 12,
+              iconSize: 20,
+              elevation: 0,
+              onTap: _onItemTapped,
             ),
           ),
         ),
       ),
-      floatingActionButton: _selectedIndex == 2 ? FloatingActionButton(
-        onPressed: () {
-          // Add new investment
-        },
-        elevation: 8,
-        backgroundColor: Colors.transparent,
-        child: Container(
-          width: 60,
-          height: 60,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                const Color(0xFF4C3FF7),
-                const Color(0xFF9D3FFF).withOpacity(0.9),
-              ],
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF4C3FF7).withOpacity(0.3),
-                blurRadius: 15,
-                offset: const Offset(0, 8),
-              ),
-            ],
-          ),
-          child: const Icon(
-            FontAwesomeIcons.plus,
-            color: Colors.white,
-          ),
-        ),
-      ) : null,
     );
   }
 

@@ -7,98 +7,224 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xFFF5F6F8), Color(0xFFFFFFFF)],
-          ),
-        ),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Welcome Back,',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w500,
-                      color: Color(0xFF2D3142),
-                    ),
+      body: Stack(
+        children: [
+          // Decorative Menu Bar at the top
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              height: 100, // Reduced from 120 to 100
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    const Color(0xFF6C5DD3),
+                    const Color(0xFF8B80F8),
+                  ],
+                ),
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(30),
+                  bottomRight: Radius.circular(30),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 20,
+                    offset: const Offset(0, 5),
                   ),
-                  const Text(
-                    'John Doe',
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF4C3FF7),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  _buildTotalBalanceCard(context),
-                  const SizedBox(height: 24),
-                  const Text(
-                    'Products Summary',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF2D3142),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Column(
+                ],
+              ),
+              child: SafeArea(
+                bottom: false, // Don't consider bottom safe area
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 10, 20, 10), // Adjusted padding
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _buildProductCard(
-                        context,
-                        'Share Capital',
-                        'KES 50,000',
-                        FontAwesomeIcons.chartPie,
-                        const Color(0xFF6C5DD3),
-                        [
-                          {'name': 'Core Shares', 'amount': 'KES 30,000'},
-                          {'name': 'Additional Shares', 'amount': 'KES 20,000'},
+                      Column(
+                        mainAxisSize: MainAxisSize.min, // Important to prevent vertical expansion
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: const [
+                          Text(
+                            'Welcome back',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.white70,
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            'John Doe',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
                         ],
                       ),
-                      const SizedBox(height: 16),
-                      _buildProductCard(
-                        context,
-                        'Savings',
-                        'KES 85,000',
-                        FontAwesomeIcons.piggyBank,
-                        const Color(0xFF7FBA7A),
-                        [
-                          {'name': 'Holiday Savings', 'amount': 'KES 35,000'},
-                          {'name': 'Emergency Fund', 'amount': 'KES 30,000'},
-                          {'name': 'Education Fund', 'amount': 'KES 20,000'},
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      _buildProductCard(
-                        context,
-                        'Loans',
-                        'KES 120,000',
-                        FontAwesomeIcons.handHoldingDollar,
-                        const Color(0xFFFF8A65),
-                        [
-                          {'name': 'Phone Loan', 'amount': 'KES 20,000'},
-                          {'name': 'Digital Loan', 'amount': 'KES 40,000'},
-                          {'name': 'Motorbike Loan', 'amount': 'KES 60,000'},
+                      Row(
+                        mainAxisSize: MainAxisSize.min, // Important to prevent horizontal expansion
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: IconButton(
+                              constraints: const BoxConstraints( // Constrain the icon button size
+                                minWidth: 40,
+                                minHeight: 40,
+                              ),
+                              icon: const Icon(
+                                FontAwesomeIcons.bell,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                              onPressed: () {},
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Container(
+                              padding: const EdgeInsets.all(2),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: Image.network(
+                                  'https://ui-avatars.com/api/?name=John+Doe&background=6C5DD3&color=fff&size=36',
+                                  width: 36,
+                                  height: 36,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     ],
                   ),
-                  const SizedBox(height: 24),
-                ],
+                ),
               ),
             ),
           ),
-        ),
+          // Main Content
+          Padding(
+            padding: const EdgeInsets.only(top: 110), // Adjusted from 130 to 110
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildTotalBalanceCard(context),
+                    const SizedBox(height: 24),
+                    const Text(
+                      'Products Summary',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF2D3142),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    _buildProductCard(
+                      context,
+                      'Share Capital',
+                      'KES 50,000',
+                      FontAwesomeIcons.chartPie,
+                      const Color(0xFF6C5DD3),
+                    ),
+                    const SizedBox(height: 16),
+                    _buildProductCard(
+                      context,
+                      'Savings',
+                      'KES 85,000',
+                      FontAwesomeIcons.piggyBank,
+                      const Color(0xFF7FBA7A),
+                    ),
+                    const SizedBox(height: 16),
+                    _buildProductCard(
+                      context,
+                      'Loans',
+                      'KES 120,000',
+                      FontAwesomeIcons.handHoldingDollar,
+                      const Color(0xFFFF8A65),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
+  }
+
+  Map<String, List<Map<String, dynamic>>> _getProductAccounts() {
+    return {
+      'Share Capital': [
+        {
+          'name': 'Core Shares',
+          'amount': 'KES 30,000',
+          'description': 'Mandatory shares as per SACCO rules',
+          'color': const Color(0xFF6C5DD3),
+        },
+        {
+          'name': 'Additional Shares',
+          'amount': 'KES 20,000',
+          'description': 'Optional additional investment shares',
+          'color': const Color(0xFF6C5DD3),
+        },
+      ],
+      'Savings': [
+        {
+          'name': 'Holiday Savings',
+          'amount': 'KES 35,000',
+          'description': 'Save for your next vacation',
+          'color': const Color(0xFF7FBA7A),
+        },
+        {
+          'name': 'Emergency Fund',
+          'amount': 'KES 30,000',
+          'description': 'For unexpected expenses',
+          'color': const Color(0xFF7FBA7A),
+        },
+        {
+          'name': 'Education Fund',
+          'amount': 'KES 20,000',
+          'description': 'Save for future education needs',
+          'color': const Color(0xFF7FBA7A),
+        },
+      ],
+      'Loans': [
+        {
+          'name': 'Phone Loan',
+          'amount': 'KES 20,000',
+          'description': 'Mobile device financing',
+          'color': const Color(0xFFFF8A65),
+        },
+        {
+          'name': 'Digital Loan',
+          'amount': 'KES 40,000',
+          'description': 'Quick access digital loan',
+          'color': const Color(0xFFFF8A65),
+        },
+        {
+          'name': 'Motorbike Loan',
+          'amount': 'KES 60,000',
+          'description': 'Vehicle financing loan',
+          'color': const Color(0xFFFF8A65),
+        },
+      ],
+    };
   }
 
   List<Map<String, dynamic>> _getAccountTransactions(String accountName) {
@@ -112,6 +238,7 @@ class HomeScreen extends StatelessWidget {
             'date': '2024-03-15',
             'icon': FontAwesomeIcons.circlePlus,
             'color': Colors.green,
+            'description': 'Regular monthly share contribution',
           },
           {
             'title': 'Share Capital Top-up',
@@ -119,62 +246,122 @@ class HomeScreen extends StatelessWidget {
             'date': '2024-03-01',
             'icon': FontAwesomeIcons.circlePlus,
             'color': Colors.green,
+            'description': 'Additional share capital investment',
+          },
+          {
+            'title': 'Dividend Reinvestment',
+            'amount': '+KES 8,500',
+            'date': '2024-02-15',
+            'icon': FontAwesomeIcons.circlePlus,
+            'color': Colors.green,
+            'description': 'Annual dividend converted to shares',
           },
         ];
+
       case 'Additional Shares':
         return [
           {
             'title': 'Extra Shares Purchase',
-            'amount': '+KES 7,000',
+            'amount': '+KES 15,000',
             'date': '2024-03-10',
             'icon': FontAwesomeIcons.circlePlus,
             'color': Colors.green,
+            'description': 'Investment in additional shares',
+          },
+          {
+            'title': 'Bonus Shares Allocation',
+            'amount': '+KES 5,000',
+            'date': '2024-02-28',
+            'icon': FontAwesomeIcons.gift,
+            'color': Colors.green,
+            'description': 'Bonus shares from SACCO promotion',
           },
         ];
+
       case 'Holiday Savings':
         return [
           {
-            'title': 'Monthly Savings',
-            'amount': '+KES 3,000',
+            'title': 'Monthly Savings Deposit',
+            'amount': '+KES 5,000',
             'date': '2024-03-15',
             'icon': FontAwesomeIcons.circlePlus,
             'color': Colors.green,
+            'description': 'Regular holiday savings contribution',
           },
           {
-            'title': 'Holiday Withdrawal',
-            'amount': '-KES 10,000',
+            'title': 'Travel Booking Withdrawal',
+            'amount': '-KES 15,000',
             'date': '2024-02-20',
             'icon': FontAwesomeIcons.circleMinus,
             'color': Colors.red,
+            'description': 'Flight ticket payment from savings',
+          },
+          {
+            'title': 'Bonus Interest Credit',
+            'amount': '+KES 1,200',
+            'date': '2024-02-01',
+            'icon': FontAwesomeIcons.percent,
+            'color': Colors.green,
+            'description': 'Quarterly interest earnings',
           },
         ];
+
       case 'Emergency Fund':
         return [
           {
             'title': 'Emergency Deposit',
-            'amount': '+KES 5,000',
+            'amount': '+KES 10,000',
             'date': '2024-03-12',
             'icon': FontAwesomeIcons.circlePlus,
             'color': Colors.green,
+            'description': 'Monthly emergency fund contribution',
+          },
+          {
+            'title': 'Medical Emergency',
+            'amount': '-KES 8,000',
+            'date': '2024-02-25',
+            'icon': FontAwesomeIcons.circleMinus,
+            'color': Colors.red,
+            'description': 'Hospital bill payment',
+          },
+          {
+            'title': 'Interest Earned',
+            'amount': '+KES 750',
+            'date': '2024-02-01',
+            'icon': FontAwesomeIcons.percent,
+            'color': Colors.green,
+            'description': 'Monthly interest on emergency fund',
           },
         ];
+
       case 'Education Fund':
         return [
           {
             'title': 'School Fees Savings',
-            'amount': '+KES 8,000',
+            'amount': '+KES 12,000',
             'date': '2024-03-15',
             'icon': FontAwesomeIcons.circlePlus,
             'color': Colors.green,
+            'description': 'Monthly education savings',
           },
           {
-            'title': 'Term Payment',
-            'amount': '-KES 15,000',
+            'title': 'Term Fee Payment',
+            'amount': '-KES 35,000',
             'date': '2024-01-05',
             'icon': FontAwesomeIcons.circleMinus,
             'color': Colors.red,
+            'description': 'School fees payment for Term 1',
+          },
+          {
+            'title': 'Education Bonus',
+            'amount': '+KES 2,500',
+            'date': '2024-01-01',
+            'icon': FontAwesomeIcons.gift,
+            'color': Colors.green,
+            'description': 'Back to school bonus credit',
           },
         ];
+
       case 'Phone Loan':
         return [
           {
@@ -183,15 +370,26 @@ class HomeScreen extends StatelessWidget {
             'date': '2024-02-01',
             'icon': FontAwesomeIcons.circlePlus,
             'color': Colors.green,
+            'description': 'Phone financing loan approval',
           },
           {
-            'title': 'Monthly Payment',
-            'amount': '-KES 2,000',
+            'title': 'Monthly Repayment',
+            'amount': '-KES 2,500',
             'date': '2024-03-15',
             'icon': FontAwesomeIcons.circleMinus,
             'color': Colors.red,
+            'description': 'Regular loan repayment',
+          },
+          {
+            'title': 'Early Repayment Bonus',
+            'amount': '-KES 5,000',
+            'date': '2024-03-10',
+            'icon': FontAwesomeIcons.percent,
+            'color': Colors.red,
+            'description': 'Additional payment with 5% discount',
           },
         ];
+
       case 'Digital Loan':
         return [
           {
@@ -200,15 +398,26 @@ class HomeScreen extends StatelessWidget {
             'date': '2024-01-15',
             'icon': FontAwesomeIcons.circlePlus,
             'color': Colors.green,
+            'description': 'Quick digital loan approval',
           },
           {
-            'title': 'Monthly Payment',
+            'title': 'Monthly Repayment',
             'amount': '-KES 4,500',
             'date': '2024-03-15',
             'icon': FontAwesomeIcons.circleMinus,
             'color': Colors.red,
+            'description': 'Regular loan repayment',
+          },
+          {
+            'title': 'Late Payment Fee',
+            'amount': '-KES 500',
+            'date': '2024-02-16',
+            'icon': FontAwesomeIcons.circleExclamation,
+            'color': Colors.red,
+            'description': 'Late payment penalty',
           },
         ];
+
       case 'Motorbike Loan':
         return [
           {
@@ -217,77 +426,458 @@ class HomeScreen extends StatelessWidget {
             'date': '2024-01-01',
             'icon': FontAwesomeIcons.circlePlus,
             'color': Colors.green,
+            'description': 'Motorbike financing approval',
           },
           {
-            'title': 'Monthly Payment',
+            'title': 'Monthly Repayment',
             'amount': '-KES 6,000',
             'date': '2024-03-15',
             'icon': FontAwesomeIcons.circleMinus,
             'color': Colors.red,
+            'description': 'Regular loan repayment',
           },
           {
-            'title': 'Monthly Payment',
+            'title': 'Insurance Premium',
+            'amount': '-KES 2,500',
+            'date': '2024-03-01',
+            'icon': FontAwesomeIcons.shield,
+            'color': Colors.red,
+            'description': 'Monthly bike insurance payment',
+          },
+          {
+            'title': 'Monthly Repayment',
             'amount': '-KES 6,000',
             'date': '2024-02-15',
             'icon': FontAwesomeIcons.circleMinus,
             'color': Colors.red,
+            'description': 'Regular loan repayment',
           },
         ];
+
       default:
         return [];
     }
   }
 
-  Widget _buildQuickAction(
-    BuildContext context,
-    IconData icon,
-    String label,
-    Color color,
-  ) {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.2),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Icon(
-            icon,
-            color: color,
-            size: 24,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          label,
-          style: TextStyle(
-            color: color,
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
+  void _showProductDetails(BuildContext context, String productName) {
+    final accounts = _getProductAccounts()[productName] ?? [];
+    final color = productName == 'Share Capital' 
+        ? const Color(0xFF6C5DD3)
+        : productName == 'Savings' 
+            ? const Color(0xFF7FBA7A)
+            : const Color(0xFFFF8A65);
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.75,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(30),
+            topRight: Radius.circular(30),
           ),
         ),
-      ],
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    color,
+                    color.withOpacity(0.8),
+                  ],
+                ),
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(30),
+                  topRight: Radius.circular(30),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          IconButton(
+                            icon: const Icon(
+                              FontAwesomeIcons.arrowLeft,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            productName,
+                            style: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Total Balance',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.white.withOpacity(0.8),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    accounts.fold<double>(
+                      0,
+                      (prev, account) {
+                        final amount = double.parse(account['amount'].substring(4).replaceAll(',', ''));
+                        return prev + amount;
+                      },
+                    ).toString().startsWith('-')
+                        ? '-KES ${accounts.fold<double>(
+                            0,
+                            (prev, account) {
+                              final amount = double.parse(account['amount'].substring(4).replaceAll(',', ''));
+                              return prev + amount;
+                            },
+                          ).abs().toStringAsFixed(0)}'
+                        : 'KES ${accounts.fold<double>(
+                            0,
+                            (prev, account) {
+                              final amount = double.parse(account['amount'].substring(4).replaceAll(',', ''));
+                              return prev + amount;
+                            },
+                          ).toStringAsFixed(0)}',
+                    style: const TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.all(20),
+                itemCount: accounts.length,
+                itemBuilder: (context, index) {
+                  final account = accounts[index];
+                  return GestureDetector(
+                    onTap: () => _showAccountTransactions(context, account['name'], color),
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: 16),
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.1),
+                            spreadRadius: 1,
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: color.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Icon(
+                              productName == 'Share Capital' 
+                                  ? FontAwesomeIcons.chartPie
+                                  : productName == 'Savings'
+                                      ? FontAwesomeIcons.piggyBank
+                                      : FontAwesomeIcons.handHoldingDollar,
+                              color: color,
+                              size: 24,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  account['name'],
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFF2D3142),
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  account['description'],
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  account['amount'],
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: color,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Icon(
+                            FontAwesomeIcons.angleRight,
+                            color: color,
+                            size: 20,
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
-  Widget _buildTransactionItem(String title, String amount, String date, IconData icon, Color color) {
-    return Card(
-      elevation: 0,
-      margin: const EdgeInsets.only(bottom: 8),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
+  void _showAccountTransactions(BuildContext context, String accountName, Color color) {
+    final transactions = _getAccountTransactions(accountName);
+    
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.75,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(30),
+            topRight: Radius.circular(30),
+          ),
+        ),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    color,
+                    color.withOpacity(0.8),
+                  ],
+                ),
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(30),
+                  topRight: Radius.circular(30),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          IconButton(
+                            icon: const Icon(
+                              FontAwesomeIcons.arrowLeft,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            accountName,
+                            style: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Recent Transactions',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.white.withOpacity(0.8),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.all(20),
+                itemCount: transactions.length,
+                itemBuilder: (context, index) {
+                  final transaction = transactions[index];
+                  return _buildTransactionItem(transaction);
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTransactionItem(Map<String, dynamic> transaction) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: transaction['color'].withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  transaction['icon'],
+                  color: transaction['color'],
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      transaction['title'],
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF2D3142),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      transaction['date'],
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Text(
+                transaction['amount'],
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: transaction['amount'].startsWith('+') 
+                      ? Colors.green 
+                      : Colors.red,
+                ),
+              ),
+            ],
+          ),
+          if (transaction['description'] != null) ...[
+            const SizedBox(height: 12),
+            Padding(
+              padding: const EdgeInsets.only(left: 60),
+              child: Text(
+                transaction['description'],
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[600],
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProductCard(
+    BuildContext context,
+    String title,
+    String amount,
+    IconData icon,
+    Color color,
+  ) {
+    return GestureDetector(
+      onTap: () {
+        _showProductDetails(context, title);
+      },
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.1),
+              spreadRadius: 1,
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
         child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: color.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(icon, color: color, size: 20),
+              child: Icon(
+                icon,
+                color: color,
+                size: 24,
+              ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -295,250 +885,27 @@ class HomeScreen extends StatelessWidget {
                   Text(
                     title,
                     style: const TextStyle(
-                      fontWeight: FontWeight.w500,
                       fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF2D3142),
                     ),
                   ),
+                  const SizedBox(height: 4),
                   Text(
-                    date,
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 14,
+                    amount,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF2D3142),
                     ),
                   ),
                 ],
               ),
             ),
-            Text(
-              amount,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: amount.startsWith('+') ? Colors.green : Colors.red,
-                fontSize: 16,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildProductCard(BuildContext context, String title, String amount, IconData icon, Color color, List<Map<String, String>> accounts) {
-    return GestureDetector(
-      onTap: () {
-        showModalBottomSheet(
-          context: context,
-          backgroundColor: Colors.transparent,
-          isScrollControlled: true,
-          builder: (context) => _buildAccountsList(context, title, accounts, color),
-        );
-      },
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: color.withOpacity(0.3),
-            width: 1,
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    icon,
-                    color: color,
-                    size: 24,
-                  ),
-                ),
-                Text(
-                  '${accounts.length} accounts',
-                  style: TextStyle(
-                    color: color,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF2D3142),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              amount,
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAccountsList(BuildContext context, String title, List<Map<String, String>> accounts, Color color) {
-    return Container(
-      height: MediaQuery.of(context).size.height * 0.7,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      child: Column(
-        children: [
-          const SizedBox(height: 16),
-          Container(
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: Colors.grey[300],
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-              ),
-              Expanded(
-                child: Text(
-                  '$title Accounts',
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              const SizedBox(width: 48), // Balance the back button
-            ],
-          ),
-          const SizedBox(height: 16),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              children: accounts.map((account) => Card(
-                margin: const EdgeInsets.only(bottom: 8),
-                child: ListTile(
-                  title: Text(account['name']!),
-                  trailing: Text(
-                    account['amount']!,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: color,
-                    ),
-                  ),
-                  onTap: () {
-                    Navigator.pop(context);
-                    _showAccountTransactions(context, account, title, accounts, color);
-                  },
-                ),
-              )).toList(),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showAccountTransactions(BuildContext context, Map<String, String> selectedAccount, String productTitle, List<Map<String, String>> allAccounts, Color color) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (context) => Container(
-        height: MediaQuery.of(context).size.height * 0.7,
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        child: Column(
-          children: [
-            const SizedBox(height: 16),
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.arrow_back),
-                  onPressed: () {
-                    Navigator.pop(context);
-                    showModalBottomSheet(
-                      context: context,
-                      backgroundColor: Colors.transparent,
-                      isScrollControlled: true,
-                      builder: (context) => _buildAccountsList(context, productTitle, allAccounts, color),
-                    );
-                  },
-                ),
-                Expanded(
-                  child: Text(
-                    '${selectedAccount['name']} Transactions',
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                const SizedBox(width: 48), // Balance the back button
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                'Balance: ${selectedAccount['amount']}',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w500,
-                  color: color,
-                ),
-              ),
-            ),
-            const Divider(),
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.all(16),
-                children: _getAccountTransactions(selectedAccount['name']!)
-                    .map((transaction) => _buildTransactionItem(
-                          transaction['title'],
-                          transaction['amount'],
-                          transaction['date'],
-                          transaction['icon'],
-                          transaction['color'],
-                        ))
-                    .toList(),
-              ),
+            Icon(
+              FontAwesomeIcons.angleRight,
+              color: color,
+              size: 20,
             ),
           ],
         ),
@@ -547,91 +914,91 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildTotalBalanceCard(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF6C5DD3), Color(0xFF8B80F8)],
-        ),
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      elevation: 8,
+      shadowColor: const Color(0xFF6C5DD3).withOpacity(0.2),
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-        ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Total Balance',
-            style: TextStyle(
-              color: Colors.white70,
-              fontSize: 16,
-            ),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF6C5DD3), Color(0xFF8B80F8)],
           ),
-          const SizedBox(height: 8),
-          const Text(
-            'KES 135,000',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Total Balance',
+              style: TextStyle(
+                color: Colors.white70,
+                fontSize: 16,
+              ),
             ),
-          ),
-          const SizedBox(height: 24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: () => Navigator.pushNamed(context, '/invest', arguments: {'initialTab': 0}),
-                  icon: const Icon(FontAwesomeIcons.piggyBank, size: 16),
-                  label: const Text('Save'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: const Color(0xFF6C5DD3),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    textStyle: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+            const SizedBox(height: 8),
+            const Text(
+              'KES 135,000',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () => Navigator.pushNamed(context, '/invest', arguments: {'initialTab': 0}),
+                    icon: const Icon(FontAwesomeIcons.piggyBank, size: 16),
+                    label: const Text('Save'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: const Color(0xFF6C5DD3),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      textStyle: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: () => Navigator.pushNamed(context, '/invest', arguments: {'initialTab': 1}),
-                  icon: const Icon(FontAwesomeIcons.handHoldingDollar, size: 16),
-                  label: const Text('Borrow'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white24,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    textStyle: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                const SizedBox(width: 16),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () => Navigator.pushNamed(context, '/invest', arguments: {'initialTab': 1}),
+                    icon: const Icon(FontAwesomeIcons.handHoldingDollar, size: 16),
+                    label: const Text('Borrow'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white24,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      textStyle: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
