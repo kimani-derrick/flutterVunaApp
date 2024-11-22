@@ -1,37 +1,25 @@
 class UserModel {
   final int id;
   final String accountNo;
-  final String firstname;
-  final String lastname;
   final String displayName;
-  final String mobileNo;
-  final String emailAddress;
-  final String officeName;
-  final bool isActive;
+  final String? emailAddress;
+  final String? mobileNo;
 
   UserModel({
     required this.id,
     required this.accountNo,
-    required this.firstname,
-    required this.lastname,
     required this.displayName,
-    required this.mobileNo,
-    required this.emailAddress,
-    required this.officeName,
-    required this.isActive,
+    this.emailAddress,
+    this.mobileNo,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
       id: json['id'] as int,
       accountNo: json['accountNo'] as String,
-      firstname: json['firstname'] as String,
-      lastname: json['lastname'] as String,
       displayName: json['displayName'] as String,
-      mobileNo: json['mobileNo'] as String,
-      emailAddress: json['emailAddress'] as String,
-      officeName: json['officeName'] as String,
-      isActive: json['active'] as bool,
+      emailAddress: json['emailAddress'] as String?,
+      mobileNo: json['mobileNo'] as String?,
     );
   }
 
@@ -39,13 +27,9 @@ class UserModel {
     return {
       'id': id,
       'accountNo': accountNo,
-      'firstname': firstname,
-      'lastname': lastname,
       'displayName': displayName,
-      'mobileNo': mobileNo,
       'emailAddress': emailAddress,
-      'officeName': officeName,
-      'active': isActive,
+      'mobileNo': mobileNo,
     };
   }
 }

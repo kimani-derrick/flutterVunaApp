@@ -6,7 +6,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'signup_screen.dart';
 import 'forgot_username_screen.dart';
 import 'forgot_password_screen.dart';
-import 'main_screen.dart';
+import 'home_screen.dart';
+import 'dart:convert';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -279,41 +280,49 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       if (response['success']) {
-        debugPrint('🎉 Login successful, processing user data...');
-        final userData = UserModel.fromJson(response['userData']);
+        print('🎉 Login successful, processing user data...');
         
-        // Save user data to SharedPreferences
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('userData', userData.toJson().toString());
-        debugPrint('💾 User data saved to local storage');
+        // Get the user data from the response
+        final userData = response['userData'];
+        if (userData == null) {
+          throw Exception('No user data found in response');
+        }
 
-        if (!mounted) return;
-        
-        // Navigate to main screen and pass user data and credentials
+        // Create user model
+        final user = UserModel(
+          id: userData['id'],
+          accountNo: userData['accountNo'],
+          displayName: userData['displayName'],
+          emailAddress: userData['emailAddress'],
+          mobileNo: userData['mobileNo'],
+        );
+
+        print('💾 User data processed successfully');
+        print('🏠 Navigating to home screen');
+
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => MainScreen(
-              user: userData,
+            builder: (context) => HomeScreen(
               username: _emailController.text,
               password: _passwordController.text,
+              user: user,
             ),
           ),
         );
-        debugPrint('🏠 Navigating to main screen');
       } else {
         setState(() {
           _errorMessage = response['error'] ?? 'Authentication failed';
           _isLoading = false;
         });
-        debugPrint('❌ Login failed: $_errorMessage');
+        print('❌ Login failed: $_errorMessage');
       }
     } catch (e) {
       setState(() {
         _errorMessage = 'An unexpected error occurred';
         _isLoading = false;
       });
-      debugPrint('🔥 Error during login: $e');
+      print('🔥 Error during login: $e');
     }
   }
 

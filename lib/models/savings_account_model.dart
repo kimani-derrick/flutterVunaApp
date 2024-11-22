@@ -1,120 +1,104 @@
 class SavingsAccountModel {
-  final int id;
+  final int? id;
   final String accountNo;
   final String? externalId;
-  final int productId;
+  final int? productId;
   final String productName;
   final String shortProductName;
-  final AccountStatus status;
-  final Currency? currency;
+  final Status status;
+  final Currency currency;
   final double? accountBalance;
-  final AccountType? accountType;
-  final Timeline? timeline;
-  final SubStatus? subStatus;
+  final AccountType accountType;
+  final Timeline timeline;
+  final SubStatus subStatus;
   final List<int>? lastActiveTransactionDate;
-  final DepositType? depositType;
+  final DepositType depositType;
 
   SavingsAccountModel({
-    required this.id,
+    this.id,
     required this.accountNo,
     this.externalId,
-    required this.productId,
+    this.productId,
     required this.productName,
     required this.shortProductName,
     required this.status,
-    this.currency,
+    required this.currency,
     this.accountBalance,
-    this.accountType,
-    this.timeline,
-    this.subStatus,
+    required this.accountType,
+    required this.timeline,
+    required this.subStatus,
     this.lastActiveTransactionDate,
-    this.depositType,
+    required this.depositType,
   });
-
-  bool get isActive => status.active ?? false;
-  String get currencySymbol => currency?.displaySymbol ?? 'KES';
-  double get balance => accountBalance ?? 0.0;
 
   factory SavingsAccountModel.fromJson(Map<String, dynamic> json) {
     return SavingsAccountModel(
-      id: json['id'] as int,
+      id: json['id'] as int?,
       accountNo: json['accountNo'] as String,
       externalId: json['externalId'] as String?,
-      productId: json['productId'] as int,
+      productId: json['productId'] as int?,
       productName: json['productName'] as String,
       shortProductName: json['shortProductName'] as String,
-      status: AccountStatus.fromJson(json['status'] as Map<String, dynamic>),
-      currency: json['currency'] != null 
-          ? Currency.fromJson(json['currency'] as Map<String, dynamic>)
-          : null,
-      accountBalance: json['accountBalance'] != null 
-          ? (json['accountBalance'] as num).toDouble()
-          : null,
-      accountType: json['accountType'] != null
-          ? AccountType.fromJson(json['accountType'] as Map<String, dynamic>)
-          : null,
-      timeline: json['timeline'] != null
-          ? Timeline.fromJson(json['timeline'] as Map<String, dynamic>)
-          : null,
-      subStatus: json['subStatus'] != null
-          ? SubStatus.fromJson(json['subStatus'] as Map<String, dynamic>)
-          : null,
+      status: Status.fromJson(json['status'] as Map<String, dynamic>),
+      currency: Currency.fromJson(json['currency'] as Map<String, dynamic>),
+      accountBalance: (json['accountBalance'] as num?)?.toDouble() ?? 0.0,
+      accountType: AccountType.fromJson(json['accountType'] as Map<String, dynamic>),
+      timeline: Timeline.fromJson(json['timeline'] as Map<String, dynamic>),
+      subStatus: SubStatus.fromJson(json['subStatus'] as Map<String, dynamic>),
       lastActiveTransactionDate: json['lastActiveTransactionDate'] != null
           ? List<int>.from(json['lastActiveTransactionDate'] as List)
           : null,
-      depositType: json['depositType'] != null
-          ? DepositType.fromJson(json['depositType'] as Map<String, dynamic>)
-          : null,
+      depositType: DepositType.fromJson(json['depositType'] as Map<String, dynamic>),
     );
   }
 }
 
-class AccountStatus {
-  final int id;
+class Status {
+  final int? id;
   final String code;
   final String value;
-  final bool? submittedAndPendingApproval;
-  final bool? approved;
-  final bool? rejected;
-  final bool? withdrawnByApplicant;
-  final bool? active;
-  final bool? closed;
-  final bool? prematureClosed;
-  final bool? transferInProgress;
-  final bool? transferOnHold;
-  final bool? matured;
+  final bool submittedAndPendingApproval;
+  final bool approved;
+  final bool rejected;
+  final bool withdrawnByApplicant;
+  final bool active;
+  final bool closed;
+  final bool prematureClosed;
+  final bool transferInProgress;
+  final bool transferOnHold;
+  final bool matured;
 
-  AccountStatus({
-    required this.id,
+  Status({
+    this.id,
     required this.code,
     required this.value,
-    this.submittedAndPendingApproval,
-    this.approved,
-    this.rejected,
-    this.withdrawnByApplicant,
-    this.active,
-    this.closed,
-    this.prematureClosed,
-    this.transferInProgress,
-    this.transferOnHold,
-    this.matured,
+    required this.submittedAndPendingApproval,
+    required this.approved,
+    required this.rejected,
+    required this.withdrawnByApplicant,
+    required this.active,
+    required this.closed,
+    required this.prematureClosed,
+    required this.transferInProgress,
+    required this.transferOnHold,
+    required this.matured,
   });
 
-  factory AccountStatus.fromJson(Map<String, dynamic> json) {
-    return AccountStatus(
-      id: json['id'] as int,
+  factory Status.fromJson(Map<String, dynamic> json) {
+    return Status(
+      id: json['id'] as int?,
       code: json['code'] as String,
       value: json['value'] as String,
-      submittedAndPendingApproval: json['submittedAndPendingApproval'] as bool?,
-      approved: json['approved'] as bool?,
-      rejected: json['rejected'] as bool?,
-      withdrawnByApplicant: json['withdrawnByApplicant'] as bool?,
-      active: json['active'] as bool?,
-      closed: json['closed'] as bool?,
-      prematureClosed: json['prematureClosed'] as bool?,
-      transferInProgress: json['transferInProgress'] as bool?,
-      transferOnHold: json['transferOnHold'] as bool?,
-      matured: json['matured'] as bool?,
+      submittedAndPendingApproval: json['submittedAndPendingApproval'] as bool? ?? false,
+      approved: json['approved'] as bool? ?? false,
+      rejected: json['rejected'] as bool? ?? false,
+      withdrawnByApplicant: json['withdrawnByApplicant'] as bool? ?? false,
+      active: json['active'] as bool? ?? false,
+      closed: json['closed'] as bool? ?? false,
+      prematureClosed: json['prematureClosed'] as bool? ?? false,
+      transferInProgress: json['transferInProgress'] as bool? ?? false,
+      transferOnHold: json['transferOnHold'] as bool? ?? false,
+      matured: json['matured'] as bool? ?? false,
     );
   }
 }
@@ -151,11 +135,31 @@ class Currency {
   }
 }
 
+class AccountType {
+  final int? id;
+  final String code;
+  final String value;
+
+  AccountType({
+    this.id,
+    required this.code,
+    required this.value,
+  });
+
+  factory AccountType.fromJson(Map<String, dynamic> json) {
+    return AccountType(
+      id: json['id'] as int?,
+      code: json['code'] as String,
+      value: json['value'] as String,
+    );
+  }
+}
+
 class Timeline {
   final List<int>? submittedOnDate;
-  final String? submittedByUsername;
-  final String? submittedByFirstname;
-  final String? submittedByLastname;
+  final String submittedByUsername;
+  final String submittedByFirstname;
+  final String submittedByLastname;
   final List<int>? approvedOnDate;
   final String? approvedByUsername;
   final String? approvedByFirstname;
@@ -164,9 +168,9 @@ class Timeline {
 
   Timeline({
     this.submittedOnDate,
-    this.submittedByUsername,
-    this.submittedByFirstname,
-    this.submittedByLastname,
+    required this.submittedByUsername,
+    required this.submittedByFirstname,
+    required this.submittedByLastname,
     this.approvedOnDate,
     this.approvedByUsername,
     this.approvedByFirstname,
@@ -176,19 +180,19 @@ class Timeline {
 
   factory Timeline.fromJson(Map<String, dynamic> json) {
     return Timeline(
-      submittedOnDate: json['submittedOnDate'] != null
+      submittedOnDate: json['submittedOnDate'] != null 
           ? List<int>.from(json['submittedOnDate'] as List)
           : null,
-      submittedByUsername: json['submittedByUsername'] as String?,
-      submittedByFirstname: json['submittedByFirstname'] as String?,
-      submittedByLastname: json['submittedByLastname'] as String?,
-      approvedOnDate: json['approvedOnDate'] != null
+      submittedByUsername: json['submittedByUsername'] as String,
+      submittedByFirstname: json['submittedByFirstname'] as String,
+      submittedByLastname: json['submittedByLastname'] as String,
+      approvedOnDate: json['approvedOnDate'] != null 
           ? List<int>.from(json['approvedOnDate'] as List)
           : null,
       approvedByUsername: json['approvedByUsername'] as String?,
       approvedByFirstname: json['approvedByFirstname'] as String?,
       approvedByLastname: json['approvedByLastname'] as String?,
-      activatedOnDate: json['activatedOnDate'] != null
+      activatedOnDate: json['activatedOnDate'] != null 
           ? List<int>.from(json['activatedOnDate'] as List)
           : null,
     );
@@ -196,80 +200,60 @@ class Timeline {
 }
 
 class SubStatus {
-  final int id;
+  final int? id;
   final String code;
   final String value;
-  final bool? none;
-  final bool? inactive;
-  final bool? dormant;
-  final bool? escheat;
-  final bool? block;
-  final bool? blockCredit;
-  final bool? blockDebit;
+  final bool none;
+  final bool inactive;
+  final bool dormant;
+  final bool escheat;
+  final bool block;
+  final bool blockCredit;
+  final bool blockDebit;
 
   SubStatus({
-    required this.id,
+    this.id,
     required this.code,
     required this.value,
-    this.none,
-    this.inactive,
-    this.dormant,
-    this.escheat,
-    this.block,
-    this.blockCredit,
-    this.blockDebit,
+    required this.none,
+    required this.inactive,
+    required this.dormant,
+    required this.escheat,
+    required this.block,
+    required this.blockCredit,
+    required this.blockDebit,
   });
 
   factory SubStatus.fromJson(Map<String, dynamic> json) {
     return SubStatus(
-      id: json['id'] as int,
+      id: json['id'] as int?,
       code: json['code'] as String,
       value: json['value'] as String,
-      none: json['none'] as bool?,
-      inactive: json['inactive'] as bool?,
-      dormant: json['dormant'] as bool?,
-      escheat: json['escheat'] as bool?,
-      block: json['block'] as bool?,
-      blockCredit: json['blockCredit'] as bool?,
-      blockDebit: json['blockDebit'] as bool?,
+      none: json['none'] as bool? ?? false,
+      inactive: json['inactive'] as bool? ?? false,
+      dormant: json['dormant'] as bool? ?? false,
+      escheat: json['escheat'] as bool? ?? false,
+      block: json['block'] as bool? ?? false,
+      blockCredit: json['blockCredit'] as bool? ?? false,
+      blockDebit: json['blockDebit'] as bool? ?? false,
     );
   }
 }
 
 class DepositType {
-  final int id;
+  final int? id;
   final String code;
   final String value;
 
   DepositType({
-    required this.id,
+    this.id,
     required this.code,
     required this.value,
   });
 
   factory DepositType.fromJson(Map<String, dynamic> json) {
     return DepositType(
-      id: json['id'] as int,
-      code: json['code'] as String,
-      value: json['value'] as String,
-    );
-  }
-}
-
-class AccountType {
-  final int id;
-  final String code;
-  final String value;
-
-  AccountType({
-    required this.id,
-    required this.code,
-    required this.value,
-  });
-
-  factory AccountType.fromJson(Map<String, dynamic> json) {
-    return AccountType(
-      id: json['id'] as int,
+      id: json['id'] as int?,
       code: json['code'] as String,
       value: json['value'] as String,
     );

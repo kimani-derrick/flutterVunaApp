@@ -61,9 +61,10 @@ class ProfileScreen extends StatelessWidget {
             'Personal Information',
             [
               _buildInfoItem(Icons.person, 'Account No', user!.accountNo),
-              _buildInfoItem(Icons.email, 'Email', user!.emailAddress),
-              _buildInfoItem(Icons.phone, 'Phone', user!.mobileNo),
-              _buildInfoItem(Icons.business, 'Branch', user!.officeName),
+              if (user!.emailAddress != null)
+                _buildInfoItem(Icons.email, 'Email', user!.emailAddress!),
+              if (user!.mobileNo != null)
+                _buildInfoItem(Icons.phone, 'Phone', user!.mobileNo!),
             ],
           ),
           const SizedBox(height: 16),
