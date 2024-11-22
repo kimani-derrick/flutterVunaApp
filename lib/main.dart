@@ -3,56 +3,53 @@ import 'package:google_fonts/google_fonts.dart';
 import 'screens/login_screen.dart';
 import 'screens/main_screen.dart';
 import 'screens/invest_screen.dart';
+import 'screens/profile_screen.dart';
+import 'models/user_model.dart';
 
 void main() {
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'SACCO App',
+      title: 'VunaSacco',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.blue,
-        scaffoldBackgroundColor: const Color(0xFFF5F6F8),
-        textTheme: GoogleFonts.poppinsTextTheme(),
-        appBarTheme: AppBarTheme(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          centerTitle: true,
-          iconTheme: const IconThemeData(color: Color(0xFF2D3142)),
-          titleTextStyle: GoogleFonts.poppins(
-            color: const Color(0xFF2D3142),
+        textTheme: GoogleFonts.poppinsTextTheme(
+          Theme.of(context).textTheme,
+        ),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF6C5DD3),
+        ),
+        useMaterial3: true,
+        appBarTheme: const AppBarTheme(
+          titleTextStyle: TextStyle(
+            color: Colors.white,
             fontSize: 20,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.bold,
           ),
-        ),
-        cardTheme: CardTheme(
-          elevation: 8,
-          shadowColor: Colors.black26,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-        ),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            elevation: 4,
-            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30),
-            ),
-            backgroundColor: const Color(0xFF4C3FF7),
-          ),
+          backgroundColor: Color(0xFF4C3FF7),
+          foregroundColor: Colors.white,
+          centerTitle: true,
+          elevation: 0,
         ),
       ),
-      initialRoute: '/login',
+      initialRoute: '/',
       routes: {
-        '/login': (context) => const LoginScreen(),
-        '/home': (context) => const MainScreen(),
+        '/': (context) => const LoginScreen(),
+        '/home': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments;
+          if (args is Map<String, dynamic>) {
+            return MainScreen(user: UserModel.fromJson(args));
+          }
+          return const MainScreen(user: null);
+        },
         '/invest': (context) => const InvestScreen(),
+        '/profile': (context) => const ProfileScreen(),
       },
     );
   }

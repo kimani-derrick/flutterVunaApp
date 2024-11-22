@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../models/user_model.dart';
 import 'home_screen.dart';
 import 'invest_screen.dart';
 import 'profile_screen.dart';
 
 class MainScreen extends StatefulWidget {
-  const MainScreen({Key? key}) : super(key: key);
+  final UserModel? user;
+  const MainScreen({Key? key, this.user}) : super(key: key);
 
   @override
   State<MainScreen> createState() => _MainScreenState();
@@ -14,10 +16,10 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
-  static const List<Widget> _screens = <Widget>[
-    HomeScreen(),
+  late final List<Widget> _screens = [
+    HomeScreen(user: widget.user),
     InvestScreen(),
-    ProfileScreen(),
+    ProfileScreen(user: widget.user),
   ];
 
   void _onItemTapped(int index) {

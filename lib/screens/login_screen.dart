@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../services/api_service.dart';
+import '../models/user_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'signup_screen.dart';
 import 'forgot_username_screen.dart';
 import 'forgot_password_screen.dart';
@@ -15,8 +18,10 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _apiService = ApiService();
   bool _isLoading = false;
   bool _obscureText = true;
+  String? _errorMessage;
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +54,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 20),
                   const Text(
-                    'SACCO App',
+                    'Sacco',
                     style: TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
@@ -181,18 +186,16 @@ class _LoginScreenState extends State<LoginScreen> {
                               child: ElevatedButton(
                                 onPressed: _isLoading ? null : _handleLogin,
                                 style: ElevatedButton.styleFrom(
-                                  foregroundColor: Colors.white,
                                   backgroundColor: const Color(0xFF4C3FF7),
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  minimumSize: const Size(double.infinity, 50),
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30),
+                                    borderRadius: BorderRadius.circular(15),
                                   ),
-                                  elevation: 5,
                                 ),
                                 child: _isLoading
                                     ? const SizedBox(
-                                        height: 20,
-                                        width: 20,
+                                        width: 24,
+                                        height: 24,
                                         child: CircularProgressIndicator(
                                           color: Colors.white,
                                           strokeWidth: 2,
@@ -201,12 +204,24 @@ class _LoginScreenState extends State<LoginScreen> {
                                     : const Text(
                                         'Login',
                                         style: TextStyle(
-                                          fontSize: 18,
+                                          fontSize: 16,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
                               ),
                             ),
+                            if (_errorMessage != null)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 16),
+                                child: Text(
+                                  _errorMessage!,
+                                  style: const TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 14,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
                           ],
                         ),
                       ),
@@ -246,19 +261,53 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void _handleLogin() async {
-    if (_formKey.currentState!.validate()) {
-      setState(() => _isLoading = true);
-      
-      // For demo purposes, we'll just simulate a delay
-      await Future.delayed(const Duration(seconds: 2));
-      
-      // Navigate to home screen
-      if (mounted) {
-        Navigator.pushReplacementNamed(context, '/home');
+  Future<void> _handleLogin() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final response = await _apiService.login(
+        _emailController.text,
+        _passwordController.text,
+      );
+
+      if (response['success']) {
+        debugPrint('🎉 Login successful, processing user data...');
+        final userData = UserModel.fromJson(response['userData']);
+        
+        // Save user data to SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('userData', userData.toJson().toString());
+        debugPrint('💾 User data saved to local storage');
+
+        if (!mounted) return;
+        
+        // Navigate to home screen and pass user data
+        Navigator.pushReplacementNamed(
+          context,
+          '/home',
+          arguments: userData.toJson(),
+        );
+        debugPrint('🏠 Navigating to home screen');
+      } else {
+        setState(() {
+          _errorMessage = response['error'] ?? 'Authentication failed';
+          _isLoading = false;
+        });
+        debugPrint('❌ Login failed: $_errorMessage');
       }
-      
-      setState(() => _isLoading = false);
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'An unexpected error occurred';
+        _isLoading = false;
+      });
+      debugPrint('🔥 Error during login: $e');
     }
   }
 

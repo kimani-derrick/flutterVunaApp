@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:intl/intl.dart'; // Import the intl package
+import 'package:intl/intl.dart';
+import '../models/user_model.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  final UserModel? user;
+  const HomeScreen({Key? key, this.user}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    if (user == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return Scaffold(
       body: Stack(
         children: [
@@ -16,7 +22,7 @@ class HomeScreen extends StatelessWidget {
             left: 0,
             right: 0,
             child: Container(
-              height: 100, // Reduced from 120 to 100
+              height: 100,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
@@ -39,27 +45,27 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
               child: SafeArea(
-                bottom: false, // Don't consider bottom safe area
+                bottom: false,
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 10, 20, 10), // Adjusted padding
+                  padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Column(
-                        mainAxisSize: MainAxisSize.min, // Important to prevent vertical expansion
+                        mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          Text(
+                        children: [
+                          const Text(
                             'Welcome back',
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.white70,
                             ),
                           ),
-                          SizedBox(height: 4),
+                          const SizedBox(height: 4),
                           Text(
-                            'John Doe',
-                            style: TextStyle(
+                            user!.displayName,
+                            style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
@@ -68,7 +74,7 @@ class HomeScreen extends StatelessWidget {
                         ],
                       ),
                       Row(
-                        mainAxisSize: MainAxisSize.min, // Important to prevent horizontal expansion
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Container(
                             decoration: BoxDecoration(
@@ -76,7 +82,7 @@ class HomeScreen extends StatelessWidget {
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: IconButton(
-                              constraints: const BoxConstraints( // Constrain the icon button size
+                              constraints: const BoxConstraints(
                                 minWidth: 40,
                                 minHeight: 40,
                               ),
@@ -99,7 +105,7 @@ class HomeScreen extends StatelessWidget {
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(10),
                                 child: Image.network(
-                                  'https://ui-avatars.com/api/?name=John+Doe&background=6C5DD3&color=fff&size=36',
+                                  'https://ui-avatars.com/api/?name=${Uri.encodeComponent(user!.displayName)}&background=6C5DD3&color=fff&size=36',
                                   width: 36,
                                   height: 36,
                                   fit: BoxFit.cover,
@@ -117,7 +123,7 @@ class HomeScreen extends StatelessWidget {
           ),
           // Main Content
           Padding(
-            padding: const EdgeInsets.only(top: 110), // Adjusted from 130 to 110
+            padding: const EdgeInsets.only(top: 110),
             child: SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -125,7 +131,7 @@ class HomeScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 24),
-                    _buildTotalBalanceCard(context),
+                    _buildTotalBalanceCard(context, user!),
                     const SizedBox(height: 24),
                     const Text(
                       'Products Summary',
@@ -139,7 +145,7 @@ class HomeScreen extends StatelessWidget {
                     _buildProductCard(
                       context,
                       'Share Capital',
-                      'KES 125,000',
+                      'KES 50,000',
                       FontAwesomeIcons.chartPie,
                       const Color(0xFF2D3142),
                     ),
@@ -178,12 +184,6 @@ class HomeScreen extends StatelessWidget {
             'name': 'Core Shares',
             'description': 'Mandatory share capital contribution',
             'amount': 'KES 50,000',
-            'color': const Color(0xFF2D3142),
-          },
-          {
-            'name': 'Additional Shares',
-            'description': 'Optional share capital investment',
-            'amount': 'KES 75,000',
             'color': const Color(0xFF2D3142),
           },
         ];
@@ -252,45 +252,44 @@ class HomeScreen extends StatelessWidget {
     return total;
   }
 
-  Widget _buildTotalBalanceCard(BuildContext context) {
-    // Calculate total across all products
+  Widget _buildTotalBalanceCard(BuildContext context, UserModel user) {
     double total = 0;
-    
-    // Add Share Capital
     final shareCapitalAccounts = _getProductAccounts('Share Capital');
-    for (var account in shareCapitalAccounts) {
-      total += double.parse(account['amount'].substring(4).replaceAll(',', ''));
-    }
-    
-    // Add Savings
     final savingsAccounts = _getProductAccounts('Savings');
-    for (var account in savingsAccounts) {
+    final loanAccounts = _getProductAccounts('Loans');
+
+    // Add Share Capital and Savings
+    for (var account in [...shareCapitalAccounts, ...savingsAccounts]) {
       total += double.parse(account['amount'].substring(4).replaceAll(',', ''));
     }
     
-    // Add Loans (they are already negative)
-    final loanAccounts = _getProductAccounts('Loans');
+    // Add Loans (they are already negative, so we add them)
     for (var account in loanAccounts) {
-      total += double.parse(account['amount'].substring(4).replaceAll(',', '')); 
+      total += double.parse(account['amount'].substring(4).replaceAll(',', ''));
     }
 
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      elevation: 8,
-      shadowColor: const Color(0xFF6C5DD3).withOpacity(0.2),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xFF6C5DD3), Color(0xFF8B80F8)],
-          ),
-          borderRadius: BorderRadius.circular(20),
+    final formattedTotal = NumberFormat("#,##0.00", "en_US").format(total);
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF6C5DD3), Color(0xFF8B80F8)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -303,33 +302,29 @@ class HomeScreen extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              total >= 0 ? 'KES ${total.toStringAsFixed(0)}' : '-KES ${(-total).toStringAsFixed(0)}',
+              'KES $formattedTotal',
               style: const TextStyle(
                 color: Colors.white,
-                fontSize: 32,
+                fontSize: 28,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: () => Navigator.pushNamed(context, '/invest', arguments: {'initialTab': 0}),
-                    icon: const Icon(FontAwesomeIcons.piggyBank, size: 16),
-                    label: const Text('Save'),
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/invest', arguments: {'initialTab': 0});
+                    },
+                    icon: const Icon(Icons.savings, color: Color(0xFF6C5DD3)),
+                    label: const Text('Save', style: TextStyle(color: Color(0xFF6C5DD3))),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
-                      foregroundColor: const Color(0xFF6C5DD3),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      elevation: 2,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
-                      ),
-                      textStyle: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
@@ -337,20 +332,16 @@ class HomeScreen extends StatelessWidget {
                 const SizedBox(width: 16),
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: () => Navigator.pushNamed(context, '/invest', arguments: {'initialTab': 1}),
-                    icon: const Icon(FontAwesomeIcons.handHoldingDollar, size: 16),
-                    label: const Text('Borrow'),
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/invest', arguments: {'initialTab': 1});
+                    },
+                    icon: const Icon(Icons.account_balance, color: Color(0xFF6C5DD3)),
+                    label: const Text('Borrow', style: TextStyle(color: Color(0xFF6C5DD3))),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white24,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      elevation: 2,
+                      backgroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
-                      ),
-                      textStyle: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
@@ -390,26 +381,6 @@ class HomeScreen extends StatelessWidget {
             'icon': FontAwesomeIcons.circlePlus,
             'color': Colors.green,
             'description': 'Annual dividend converted to shares',
-          },
-        ];
-
-      case 'Additional Shares':
-        return [
-          {
-            'title': 'Extra Shares Purchase',
-            'amount': '+KES 25,000',
-            'date': '2024-03-10',
-            'icon': FontAwesomeIcons.circlePlus,
-            'color': Colors.green,
-            'description': 'Investment in additional shares',
-          },
-          {
-            'title': 'Bonus Shares Allocation',
-            'amount': '+KES 5,000',
-            'date': '2024-02-28',
-            'icon': FontAwesomeIcons.gift,
-            'color': Colors.green,
-            'description': 'Bonus shares from SACCO promotion',
           },
         ];
 
