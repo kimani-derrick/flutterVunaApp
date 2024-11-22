@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/intl.dart'; // Import the intl package
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -123,6 +124,7 @@ class HomeScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    const SizedBox(height: 24),
                     _buildTotalBalanceCard(context),
                     const SizedBox(height: 24),
                     const Text(
@@ -137,23 +139,23 @@ class HomeScreen extends StatelessWidget {
                     _buildProductCard(
                       context,
                       'Share Capital',
-                      'KES 50,000',
+                      'KES 125,000',
                       FontAwesomeIcons.chartPie,
-                      const Color(0xFF6C5DD3),
+                      const Color(0xFF2D3142),
                     ),
                     const SizedBox(height: 16),
                     _buildProductCard(
                       context,
                       'Savings',
-                      'KES 85,000',
+                      'KES 375,000',
                       FontAwesomeIcons.piggyBank,
-                      const Color(0xFF7FBA7A),
+                      const Color(0xFF4CAF50),
                     ),
                     const SizedBox(height: 16),
                     _buildProductCard(
                       context,
                       'Loans',
-                      'KES 120,000',
+                      '-KES 120,000',
                       FontAwesomeIcons.handHoldingDollar,
                       const Color(0xFFFF8A65),
                     ),
@@ -168,67 +170,200 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Map<String, List<Map<String, dynamic>>> _getProductAccounts() {
-    return {
-      'Share Capital': [
-        {
-          'name': 'Core Shares',
-          'amount': 'KES 30,000',
-          'description': 'Mandatory shares as per SACCO rules',
-          'color': const Color(0xFF6C5DD3),
-        },
-        {
-          'name': 'Additional Shares',
-          'amount': 'KES 20,000',
-          'description': 'Optional additional investment shares',
-          'color': const Color(0xFF6C5DD3),
-        },
-      ],
-      'Savings': [
-        {
-          'name': 'Holiday Savings',
-          'amount': 'KES 35,000',
-          'description': 'Save for your next vacation',
-          'color': const Color(0xFF7FBA7A),
-        },
-        {
-          'name': 'Emergency Fund',
-          'amount': 'KES 30,000',
-          'description': 'For unexpected expenses',
-          'color': const Color(0xFF7FBA7A),
-        },
-        {
-          'name': 'Education Fund',
-          'amount': 'KES 20,000',
-          'description': 'Save for future education needs',
-          'color': const Color(0xFF7FBA7A),
-        },
-      ],
-      'Loans': [
-        {
-          'name': 'Phone Loan',
-          'amount': 'KES 20,000',
-          'description': 'Mobile device financing',
-          'color': const Color(0xFFFF8A65),
-        },
-        {
-          'name': 'Digital Loan',
-          'amount': 'KES 40,000',
-          'description': 'Quick access digital loan',
-          'color': const Color(0xFFFF8A65),
-        },
-        {
-          'name': 'Motorbike Loan',
-          'amount': 'KES 60,000',
-          'description': 'Vehicle financing loan',
-          'color': const Color(0xFFFF8A65),
-        },
-      ],
-    };
+  List<Map<String, dynamic>> _getProductAccounts(String productName) {
+    switch (productName) {
+      case 'Share Capital':
+        return [
+          {
+            'name': 'Core Shares',
+            'description': 'Mandatory share capital contribution',
+            'amount': 'KES 50,000',
+            'color': const Color(0xFF2D3142),
+          },
+          {
+            'name': 'Additional Shares',
+            'description': 'Optional share capital investment',
+            'amount': 'KES 75,000',
+            'color': const Color(0xFF2D3142),
+          },
+        ];
+      case 'Savings':
+        return [
+          {
+            'name': 'Savings Account',
+            'description': 'Regular savings with competitive interest',
+            'amount': 'KES 125,000',
+            'color': const Color(0xFF4CAF50),
+          },
+          {
+            'name': 'Fixed Deposit',
+            'description': '12-month term deposit at 12% p.a.',
+            'amount': 'KES 250,000',
+            'color': const Color(0xFF4CAF50),
+          },
+        ];
+      case 'Loans':
+        return [
+          {
+            'name': 'Phone Loan',
+            'amount': '-KES 20,000',
+            'description': 'Mobile device financing',
+            'color': const Color(0xFFFF8A65),
+          },
+          {
+            'name': 'Digital Loan',
+            'amount': '-KES 40,000',
+            'description': 'Quick access digital loan',
+            'color': const Color(0xFFFF8A65),
+          },
+          {
+            'name': 'Motorbike Loan',
+            'amount': '-KES 60,000',
+            'description': 'Vehicle financing loan',
+            'color': const Color(0xFFFF8A65),
+          },
+        ];
+      default:
+        return [];
+    }
+  }
+
+  double _calculateTotalPortfolio() {
+    double total = 0;
+    
+    // Add Share Capital
+    final shareCapitalAccounts = _getProductAccounts('Share Capital');
+    for (var account in shareCapitalAccounts) {
+      total += double.parse(account['amount'].substring(4).replaceAll(',', ''));
+    }
+    
+    // Add Savings
+    final savingsAccounts = _getProductAccounts('Savings');
+    for (var account in savingsAccounts) {
+      total += double.parse(account['amount'].substring(4).replaceAll(',', ''));
+    }
+    
+    // Subtract Loans
+    final loanAccounts = _getProductAccounts('Loans');
+    for (var account in loanAccounts) {
+      total += double.parse(account['amount'].substring(4).replaceAll(',', '')); // Loans are already negative
+    }
+    
+    return total;
+  }
+
+  Widget _buildTotalBalanceCard(BuildContext context) {
+    // Calculate total across all products
+    double total = 0;
+    
+    // Add Share Capital
+    final shareCapitalAccounts = _getProductAccounts('Share Capital');
+    for (var account in shareCapitalAccounts) {
+      total += double.parse(account['amount'].substring(4).replaceAll(',', ''));
+    }
+    
+    // Add Savings
+    final savingsAccounts = _getProductAccounts('Savings');
+    for (var account in savingsAccounts) {
+      total += double.parse(account['amount'].substring(4).replaceAll(',', ''));
+    }
+    
+    // Add Loans (they are already negative)
+    final loanAccounts = _getProductAccounts('Loans');
+    for (var account in loanAccounts) {
+      total += double.parse(account['amount'].substring(4).replaceAll(',', '')); 
+    }
+
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      elevation: 8,
+      shadowColor: const Color(0xFF6C5DD3).withOpacity(0.2),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF6C5DD3), Color(0xFF8B80F8)],
+          ),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Total Balance',
+              style: TextStyle(
+                color: Colors.white70,
+                fontSize: 16,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              total >= 0 ? 'KES ${total.toStringAsFixed(0)}' : '-KES ${(-total).toStringAsFixed(0)}',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () => Navigator.pushNamed(context, '/invest', arguments: {'initialTab': 0}),
+                    icon: const Icon(FontAwesomeIcons.piggyBank, size: 16),
+                    label: const Text('Save'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: const Color(0xFF6C5DD3),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      textStyle: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () => Navigator.pushNamed(context, '/invest', arguments: {'initialTab': 1}),
+                    icon: const Icon(FontAwesomeIcons.handHoldingDollar, size: 16),
+                    label: const Text('Borrow'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white24,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      textStyle: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   List<Map<String, dynamic>> _getAccountTransactions(String accountName) {
-    // Simulated transactions for different accounts
     switch (accountName) {
       case 'Core Shares':
         return [
@@ -262,7 +397,7 @@ class HomeScreen extends StatelessWidget {
         return [
           {
             'title': 'Extra Shares Purchase',
-            'amount': '+KES 15,000',
+            'amount': '+KES 25,000',
             'date': '2024-03-10',
             'icon': FontAwesomeIcons.circlePlus,
             'color': Colors.green,
@@ -278,159 +413,83 @@ class HomeScreen extends StatelessWidget {
           },
         ];
 
-      case 'Holiday Savings':
+      case 'Savings Account':
         return [
           {
-            'title': 'Monthly Savings Deposit',
-            'amount': '+KES 5,000',
+            'title': 'Salary Deposit',
+            'amount': '+KES 45,000',
             'date': '2024-03-15',
             'icon': FontAwesomeIcons.circlePlus,
             'color': Colors.green,
-            'description': 'Regular holiday savings contribution',
+            'description': 'Monthly salary deposit',
           },
           {
-            'title': 'Travel Booking Withdrawal',
+            'title': 'ATM Withdrawal',
             'amount': '-KES 15,000',
-            'date': '2024-02-20',
+            'date': '2024-03-10',
             'icon': FontAwesomeIcons.circleMinus,
             'color': Colors.red,
-            'description': 'Flight ticket payment from savings',
-          },
-          {
-            'title': 'Bonus Interest Credit',
-            'amount': '+KES 1,200',
-            'date': '2024-02-01',
-            'icon': FontAwesomeIcons.percent,
-            'color': Colors.green,
-            'description': 'Quarterly interest earnings',
-          },
-        ];
-
-      case 'Emergency Fund':
-        return [
-          {
-            'title': 'Emergency Deposit',
-            'amount': '+KES 10,000',
-            'date': '2024-03-12',
-            'icon': FontAwesomeIcons.circlePlus,
-            'color': Colors.green,
-            'description': 'Monthly emergency fund contribution',
-          },
-          {
-            'title': 'Medical Emergency',
-            'amount': '-KES 8,000',
-            'date': '2024-02-25',
-            'icon': FontAwesomeIcons.circleMinus,
-            'color': Colors.red,
-            'description': 'Hospital bill payment',
+            'description': 'ATM withdrawal at Branch',
           },
           {
             'title': 'Interest Earned',
-            'amount': '+KES 750',
-            'date': '2024-02-01',
+            'amount': '+KES 875',
+            'date': '2024-03-01',
             'icon': FontAwesomeIcons.percent,
             'color': Colors.green,
-            'description': 'Monthly interest on emergency fund',
-          },
-        ];
-
-      case 'Education Fund':
-        return [
-          {
-            'title': 'School Fees Savings',
-            'amount': '+KES 12,000',
-            'date': '2024-03-15',
-            'icon': FontAwesomeIcons.circlePlus,
-            'color': Colors.green,
-            'description': 'Monthly education savings',
+            'description': 'Monthly interest earnings',
           },
           {
-            'title': 'Term Fee Payment',
-            'amount': '-KES 35,000',
-            'date': '2024-01-05',
-            'icon': FontAwesomeIcons.circleMinus,
-            'color': Colors.red,
-            'description': 'School fees payment for Term 1',
-          },
-          {
-            'title': 'Education Bonus',
-            'amount': '+KES 2,500',
-            'date': '2024-01-01',
-            'icon': FontAwesomeIcons.gift,
-            'color': Colors.green,
-            'description': 'Back to school bonus credit',
-          },
-        ];
-
-      case 'Phone Loan':
-        return [
-          {
-            'title': 'Loan Disbursement',
-            'amount': '+KES 20,000',
-            'date': '2024-02-01',
-            'icon': FontAwesomeIcons.circlePlus,
-            'color': Colors.green,
-            'description': 'Phone financing loan approval',
-          },
-          {
-            'title': 'Monthly Repayment',
-            'amount': '-KES 2,500',
-            'date': '2024-03-15',
-            'icon': FontAwesomeIcons.circleMinus,
-            'color': Colors.red,
-            'description': 'Regular loan repayment',
-          },
-          {
-            'title': 'Early Repayment Bonus',
+            'title': 'Utility Payment',
             'amount': '-KES 5,000',
-            'date': '2024-03-10',
-            'icon': FontAwesomeIcons.percent,
+            'date': '2024-02-28',
+            'icon': FontAwesomeIcons.bolt,
             'color': Colors.red,
-            'description': 'Additional payment with 5% discount',
+            'description': 'Electricity bill payment',
           },
         ];
 
-      case 'Digital Loan':
+      case 'Fixed Deposit':
         return [
           {
-            'title': 'Loan Disbursement',
-            'amount': '+KES 40,000',
+            'title': 'Term Deposit',
+            'amount': '+KES 250,000',
             'date': '2024-01-15',
             'icon': FontAwesomeIcons.circlePlus,
             'color': Colors.green,
-            'description': 'Quick digital loan approval',
+            'description': '12-month fixed deposit at 12% p.a.',
           },
           {
-            'title': 'Monthly Repayment',
-            'amount': '-KES 4,500',
+            'title': 'Interest Credit',
+            'amount': '+KES 2,500',
+            'date': '2024-02-15',
+            'icon': FontAwesomeIcons.percent,
+            'color': Colors.green,
+            'description': 'Monthly interest credit (non-withdrawable)',
+          },
+          {
+            'title': 'Interest Credit',
+            'amount': '+KES 2,500',
             'date': '2024-03-15',
-            'icon': FontAwesomeIcons.circleMinus,
-            'color': Colors.red,
-            'description': 'Regular loan repayment',
-          },
-          {
-            'title': 'Late Payment Fee',
-            'amount': '-KES 500',
-            'date': '2024-02-16',
-            'icon': FontAwesomeIcons.circleExclamation,
-            'color': Colors.red,
-            'description': 'Late payment penalty',
+            'icon': FontAwesomeIcons.percent,
+            'color': Colors.green,
+            'description': 'Monthly interest credit (non-withdrawable)',
           },
         ];
 
-      case 'Motorbike Loan':
+      case 'Development Loan':
         return [
           {
             'title': 'Loan Disbursement',
-            'amount': '+KES 60,000',
+            'amount': '+KES 200,000',
             'date': '2024-01-01',
             'icon': FontAwesomeIcons.circlePlus,
             'color': Colors.green,
-            'description': 'Motorbike financing approval',
+            'description': 'Development loan approval',
           },
           {
             'title': 'Monthly Repayment',
-            'amount': '-KES 6,000',
+            'amount': '-KES 20,000',
             'date': '2024-03-15',
             'icon': FontAwesomeIcons.circleMinus,
             'color': Colors.red,
@@ -442,12 +501,24 @@ class HomeScreen extends StatelessWidget {
             'date': '2024-03-01',
             'icon': FontAwesomeIcons.shield,
             'color': Colors.red,
-            'description': 'Monthly bike insurance payment',
+            'description': 'Monthly loan insurance',
+          },
+        ];
+
+      case 'Emergency Loan':
+        return [
+          {
+            'title': 'Loan Disbursement',
+            'amount': '+KES 50,000',
+            'date': '2024-02-15',
+            'icon': FontAwesomeIcons.circlePlus,
+            'color': Colors.green,
+            'description': 'Emergency loan approval',
           },
           {
-            'title': 'Monthly Repayment',
-            'amount': '-KES 6,000',
-            'date': '2024-02-15',
+            'title': 'Repayment',
+            'amount': '-KES 5,000',
+            'date': '2024-03-15',
             'icon': FontAwesomeIcons.circleMinus,
             'color': Colors.red,
             'description': 'Regular loan repayment',
@@ -460,11 +531,11 @@ class HomeScreen extends StatelessWidget {
   }
 
   void _showProductDetails(BuildContext context, String productName) {
-    final accounts = _getProductAccounts()[productName] ?? [];
+    final accounts = _getProductAccounts(productName);
     final color = productName == 'Share Capital' 
-        ? const Color(0xFF6C5DD3)
+        ? const Color(0xFF2D3142)
         : productName == 'Savings' 
-            ? const Color(0xFF7FBA7A)
+            ? const Color(0xFF4CAF50)
             : const Color(0xFFFF8A65);
 
     showModalBottomSheet(
@@ -906,96 +977,6 @@ class HomeScreen extends StatelessWidget {
               FontAwesomeIcons.angleRight,
               color: color,
               size: 20,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTotalBalanceCard(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      elevation: 8,
-      shadowColor: const Color(0xFF6C5DD3).withOpacity(0.2),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xFF6C5DD3), Color(0xFF8B80F8)],
-          ),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Total Balance',
-              style: TextStyle(
-                color: Colors.white70,
-                fontSize: 16,
-              ),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'KES 135,000',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () => Navigator.pushNamed(context, '/invest', arguments: {'initialTab': 0}),
-                    icon: const Icon(FontAwesomeIcons.piggyBank, size: 16),
-                    label: const Text('Save'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: const Color(0xFF6C5DD3),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      textStyle: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () => Navigator.pushNamed(context, '/invest', arguments: {'initialTab': 1}),
-                    icon: const Icon(FontAwesomeIcons.handHoldingDollar, size: 16),
-                    label: const Text('Borrow'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white24,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      textStyle: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
             ),
           ],
         ),
