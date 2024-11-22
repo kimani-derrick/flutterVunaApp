@@ -49,19 +49,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      initialRoute: '/',
-      routes: {
-        '/': (context) => const LoginScreen(),
-        '/home': (context) {
-          final args = ModalRoute.of(context)?.settings.arguments;
-          if (args is Map<String, dynamic>) {
-            return MainScreen(user: UserModel.fromJson(args));
-          }
-          return const MainScreen(user: null);
-        },
-        '/invest': (context) => const InvestScreen(),
-        '/profile': (context) => const ProfileScreen(),
-      },
+      home: const LoginScreen(),
     );
   }
 }

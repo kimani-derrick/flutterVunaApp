@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'signup_screen.dart';
 import 'forgot_username_screen.dart';
 import 'forgot_password_screen.dart';
+import 'main_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -288,13 +289,18 @@ class _LoginScreenState extends State<LoginScreen> {
 
         if (!mounted) return;
         
-        // Navigate to home screen and pass user data
-        Navigator.pushReplacementNamed(
+        // Navigate to main screen and pass user data and credentials
+        Navigator.pushReplacement(
           context,
-          '/home',
-          arguments: userData.toJson(),
+          MaterialPageRoute(
+            builder: (context) => MainScreen(
+              user: userData,
+              username: _emailController.text,
+              password: _passwordController.text,
+            ),
+          ),
         );
-        debugPrint('🏠 Navigating to home screen');
+        debugPrint('🏠 Navigating to main screen');
       } else {
         setState(() {
           _errorMessage = response['error'] ?? 'Authentication failed';

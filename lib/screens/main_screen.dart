@@ -7,7 +7,15 @@ import 'profile_screen.dart';
 
 class MainScreen extends StatefulWidget {
   final UserModel? user;
-  const MainScreen({Key? key, this.user}) : super(key: key);
+  final String username;
+  final String password;
+
+  const MainScreen({
+    Key? key,
+    this.user,
+    required this.username,
+    required this.password,
+  }) : super(key: key);
 
   @override
   State<MainScreen> createState() => _MainScreenState();
@@ -17,7 +25,11 @@ class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
   late final List<Widget> _screens = [
-    HomeScreen(user: widget.user),
+    HomeScreen(
+      user: widget.user,
+      username: widget.username,
+      password: widget.password,
+    ),
     InvestScreen(),
     ProfileScreen(user: widget.user),
   ];
