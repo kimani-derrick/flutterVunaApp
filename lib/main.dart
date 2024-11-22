@@ -37,6 +37,17 @@ class MyApp extends StatelessWidget {
           centerTitle: true,
           elevation: 0,
         ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            elevation: 4,
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
+            ),
+            backgroundColor: const Color(0xFF4C3FF7),
+            foregroundColor: Colors.white,
+          ),
+        ),
       ),
       initialRoute: '/',
       routes: {
