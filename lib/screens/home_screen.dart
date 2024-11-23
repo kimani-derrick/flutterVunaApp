@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import '../models/user_model.dart';
 import '../models/savings_account_model.dart';
 import '../screens/profile_screen.dart';
+import '../screens/invest_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final String? username;
@@ -457,37 +458,66 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildInvestScreen() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            FontAwesomeIcons.chartLine,
-            size: 64,
-            color: const Color(0xFF6B4EFF).withOpacity(0.5),
+  Widget _buildInvestmentCard(String title, IconData icon, List<Color> gradientColors) {
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: gradientColors,
           ),
-          const SizedBox(height: 24),
-          Text(
-            'Investment Options Coming Soon',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.grey[800],
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: gradientColors[0].withOpacity(0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () {
+              // TODO: Navigate to specific investment category
+            },
+            borderRadius: BorderRadius.circular(20),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    icon,
+                    color: Colors.white,
+                    size: 32,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    title,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-          const SizedBox(height: 16),
-          Text(
-            'We\'re working on bringing you exciting investment opportunities.',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey[600],
-            ),
-          ),
-        ],
+        ),
       ),
     );
+  }
+
+  Widget _buildProfileScreen() {
+    return ProfileScreen(user: widget.user);
   }
 
   Widget _buildMainContent() {
@@ -644,15 +674,15 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> _screens = [
+    List<Widget> screens = [
       _buildMainContent(),
-      _buildInvestScreen(),
-      ProfileScreen(user: widget.user),
+      const InvestScreen(),
+      _buildProfileScreen(),
     ];
 
     return Scaffold(
       body: SafeArea(
-        child: _screens[_selectedIndex],
+        child: screens[_selectedIndex],
       ),
       bottomNavigationBar: Container(
         margin: const EdgeInsets.all(16),
