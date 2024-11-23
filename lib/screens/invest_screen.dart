@@ -57,24 +57,43 @@ class InvestScreen extends StatelessWidget {
                   onTap: () {
                     // TODO: Navigate to specific investment category
                   },
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
+                  child: Container(
+                    width: double.infinity,
+                    height: double.infinity,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Icon(
-                          icon,
-                          color: Colors.white,
-                          size: 32,
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            icon,
+                            color: Colors.white,
+                            size: 32,
+                          ),
                         ),
                         const SizedBox(height: 12),
-                        Text(
-                          title,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: Text(
+                            title,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              shadows: [
+                                Shadow(
+                                  offset: Offset(0, 1),
+                                  blurRadius: 3,
+                                  color: Color(0x66000000),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ],
@@ -92,12 +111,6 @@ class InvestScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final List<Map<String, dynamic>> categories = [
-      {
-        'title': 'All',
-        'icon': FontAwesomeIcons.compass,
-        'colors': [const Color(0xFF6B4EFF), const Color(0xFF9747FF)],
-        'image': 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&q=85&w=500&auto=format',
-      },
       {
         'title': 'Money Market Funds',
         'icon': FontAwesomeIcons.moneyBillTrendUp,
