@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/top_menu_bar.dart';
 
 class PortfolioScreen extends StatelessWidget {
   const PortfolioScreen({Key? key}) : super(key: key);
@@ -6,44 +7,55 @@ class PortfolioScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('My Portfolio'),
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(16.0),
-        children: [
-          _buildPortfolioSummary(),
-          const SizedBox(height: 24),
-          const Text(
-            'Investment History',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+      backgroundColor: Colors.grey[100],
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const TopMenuBar(
+              title: 'My Portfolio',
+              subtitle: 'Manage your investments',
             ),
-          ),
-          const SizedBox(height: 16),
-          _buildInvestmentItem(
-            'Fixed Deposit',
-            'Active',
-            'KES 5,000',
-            '12%',
-            Colors.green,
-          ),
-          _buildInvestmentItem(
-            'Savings Account',
-            'Active',
-            'KES 3,000',
-            '5%',
-            Colors.blue,
-          ),
-          _buildInvestmentItem(
-            'Group Loan',
-            'Completed',
-            'KES 2,000',
-            '8%',
-            Colors.grey,
-          ),
-        ],
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.all(16.0),
+                children: [
+                  _buildPortfolioSummary(),
+                  const SizedBox(height: 24),
+                  const Text(
+                    'Investment History',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildInvestmentItem(
+                    'Fixed Deposit',
+                    'Active',
+                    'KES 5,000',
+                    '12%',
+                    Colors.green,
+                  ),
+                  _buildInvestmentItem(
+                    'Savings Account',
+                    'Active',
+                    'KES 3,000',
+                    '5%',
+                    Colors.blue,
+                  ),
+                  _buildInvestmentItem(
+                    'Group Loan',
+                    'Completed',
+                    'KES 2,000',
+                    '8%',
+                    Colors.grey,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

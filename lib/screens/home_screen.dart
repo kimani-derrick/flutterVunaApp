@@ -7,6 +7,7 @@ import '../models/user_model.dart';
 import '../models/savings_account_model.dart';
 import '../screens/profile_screen.dart';
 import '../screens/invest_screen.dart';
+import '../widgets/top_menu_bar.dart';
 
 class HomeScreen extends StatefulWidget {
   final String? username;
@@ -519,77 +520,9 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Top Menu Bar
-                Container(
-                  margin: const EdgeInsets.all(16.0),
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        Color(0xFF1E88E5),  // Primary blue
-                        Color(0xFF1565C0),  // Darker blue
-                      ],
-                    ),
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF1E88E5).withOpacity(0.3),
-                        spreadRadius: 1,
-                        blurRadius: 10,
-                        offset: const Offset(0, 1),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Welcome back,',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.white70,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            widget.user?.displayName ?? 'User',
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              spreadRadius: 1,
-                              blurRadius: 5,
-                              offset: const Offset(0, 1),
-                            ),
-                          ],
-                        ),
-                        child: const CircleAvatar(
-                          radius: 24,
-                          backgroundColor: Colors.transparent,
-                          child: Icon(
-                            Icons.person,
-                            size: 30,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                TopMenuBar(
+                  userName: widget.user?.displayName,
+                  subtitle: 'User',
                 ),
                 // Total Balance Card
                 _buildTotalBalanceCard(
