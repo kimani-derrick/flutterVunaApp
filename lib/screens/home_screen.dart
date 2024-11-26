@@ -43,6 +43,11 @@ class _HomeScreenState extends State<HomeScreen> {
     _savingsAccountsFuture = fetchSavingsAccounts();
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   Future<List<SavingsAccountModel>> fetchSavingsAccounts() async {
     try {
       setState(() {
@@ -95,115 +100,281 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildProductSummaryCard(String title, String amount, IconData icon) {
-    // Define gradient colors based on the card type
-    List<Color> gradientColors;
-    Color shadowColor;
-    
+    Color primaryColor;
+    Color backgroundColor;
+
     switch (title) {
       case 'Savings':
-        gradientColors = const [
-          Color(0xFF00E676), // Vibrant green
-          Color(0xFF00C897), // Medium green
-          Color(0xFF00A572), // Deep green
-        ];
-        shadowColor = const Color(0xFF00C897);
+        primaryColor = const Color(0xFF2E7D32);
+        backgroundColor = const Color(0xFFE8F5E9);
         break;
       case 'Loans':
-        gradientColors = const [
-          Color(0xFFFF6B6B), // Bright red
-          Color(0xFFFF5252), // Medium red
-          Color(0xFFFF4949), // Deep red
-        ];
-        shadowColor = const Color(0xFFFF6B6B);
-        break;
-      case 'Share Capital':
-        gradientColors = const [
-          Color(0xFF4FC3F7), // Light blue
-          Color(0xFF4DABF7), // Medium blue
-          Color(0xFF2B95E9), // Deep blue
-        ];
-        shadowColor = const Color(0xFF4DABF7);
+        primaryColor = const Color(0xFF1565C0);
+        backgroundColor = const Color(0xFFE3F2FD);
         break;
       default:
-        gradientColors = const [Color(0xFF6B4EFF), Color(0xFF9747FF)];
-        shadowColor = const Color(0xFF6B4EFF);
+        primaryColor = const Color(0xFF424242);
+        backgroundColor = const Color(0xFFF5F5F5);
     }
 
-    return Container(
+    return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          stops: const [0.0, 0.5, 1.0],
-          colors: gradientColors,
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: primaryColor.withOpacity(0.1),
+          width: 1,
         ),
-        borderRadius: BorderRadius.circular(15),
-        boxShadow: [
-          BoxShadow(
-            color: shadowColor.withOpacity(0.3),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () {
-            if (title == 'Savings') {
-              _showSavingsAccounts();
-            }
-          },
-          borderRadius: BorderRadius.circular(15),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    icon,
-                    color: Colors.white,
-                    size: 24,
-                  ),
+      child: InkWell(
+        onTap: () {
+          if (title == 'Savings') {
+            _showSavingsAccounts();
+          }
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: backgroundColor,
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                child: Icon(
+                  icon,
+                  color: primaryColor,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: primaryColor,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      amount,
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                        color: primaryColor.withOpacity(0.8),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.arrow_forward_ios,
+                color: primaryColor.withOpacity(0.5),
+                size: 16,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showSavingsAccounts() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.75,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(0xFF6B4EFF),
+                    Color(0xFF9747FF),
+                  ],
+                ),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        title,
-                        style: const TextStyle(
-                          fontSize: 18,
+                      const Text(
+                        'Savings Accounts',
+                        style: TextStyle(
+                          fontSize: 24,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        amount,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.white.withOpacity(0.8),
-                        ),
+                      IconButton(
+                        icon: const Icon(Icons.close, color: Colors.white),
+                        onPressed: () => Navigator.pop(context),
                       ),
                     ],
                   ),
-                ),
-                Icon(
-                  Icons.arrow_forward_ios,
-                  color: Colors.white.withOpacity(0.8),
-                  size: 20,
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
+            Expanded(
+              child: FutureBuilder<List<SavingsAccountModel>>(
+                future: _savingsAccountsFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  } else if (snapshot.hasError) {
+                    return Center(
+                      child: Text('Error: ${snapshot.error}'),
+                    );
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Center(
+                      child: Text('No savings accounts found'),
+                    );
+                  }
+
+                  final accounts = snapshot.data!;
+                  return ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: accounts.length,
+                    itemBuilder: (context, index) {
+                      final account = accounts[index];
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF1E88E5).withOpacity(0.1),
+                              offset: const Offset(0, 4),
+                              blurRadius: 12,
+                            ),
+                          ],
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              Colors.white,
+                              const Color(0xFF1E88E5).withOpacity(0.05),
+                            ],
+                          ),
+                        ),
+                        child: Stack(
+                          children: [
+                            Positioned(
+                              right: -20,
+                              top: -20,
+                              child: Container(
+                                width: 100,
+                                height: 100,
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [
+                                      const Color(0xFF1E88E5).withOpacity(0.1),
+                                      const Color(0xFF1565C0).withOpacity(0.05),
+                                    ],
+                                  ),
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(20),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(12),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFF1E88E5).withOpacity(0.1),
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        child: const Icon(
+                                          FontAwesomeIcons.piggyBank,
+                                          color: Color(0xFF1E88E5),
+                                          size: 20,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              account.productName,
+                                              style: const TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold,
+                                                color: Color(0xFF1E88E5),
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              'Account: ${account.accountNo}',
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                color: Colors.grey[600],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF1E88E5).withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Text(
+                                      'Balance: ${NumberFormat.currency(locale: 'en_US', symbol: '\$').format(account.accountBalance)}',
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: Color(0xFF1E88E5),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -318,368 +489,149 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _showSavingsAccounts() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        height: MediaQuery.of(context).size.height * 0.75,
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color(0xFF6B4EFF),
-                    Color(0xFF9747FF),
-                  ],
-                ),
-                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+  Widget _buildMainContent() {
+    return FutureBuilder<List<SavingsAccountModel>>(
+      future: _savingsAccountsFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        }
+
+        final accounts = snapshot.data ?? [];
+        final totalBalance = accounts.fold<double>(
+          0,
+          (sum, account) => sum + (account.accountBalance ?? 0),
+        );
+
+        return RefreshIndicator(
+          onRefresh: () async {
+            setState(() {
+              _savingsAccountsFuture = fetchSavingsAccounts();
+            });
+          },
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Top Menu Bar
+                Container(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Savings Accounts',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Welcome back,',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            widget.user?.displayName ?? 'User',
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.close, color: Colors.white),
-                        onPressed: () => Navigator.pop(context),
+                      CircleAvatar(
+                        radius: 24,
+                        backgroundColor: Colors.grey[200],
+                        child: const Icon(
+                          Icons.person,
+                          size: 30,
+                          color: Colors.grey,
+                        ),
                       ),
                     ],
                   ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: FutureBuilder<List<SavingsAccountModel>>(
-                future: _savingsAccountsFuture,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  } else if (snapshot.hasError) {
-                    return Center(
-                      child: Text('Error: ${snapshot.error}'),
-                    );
-                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return const Center(
-                      child: Text('No savings accounts found'),
-                    );
-                  }
+                ),
 
-                  final accounts = snapshot.data!;
-                  return ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: accounts.length,
-                    itemBuilder: (context, index) {
-                      final account = accounts[index];
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 16),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              const Color(0xFF4C3FF7),
-                              const Color(0xFF7C3FFF),
-                              const Color(0xFF9D3FFF).withOpacity(0.9),
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                account.productName,
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Account: ${account.accountNo}',
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.white70,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Balance: ${account.currency.displaySymbol} ${NumberFormat("#,##0.00", "en_US").format(account.accountBalance ?? 0.0)}',
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Status: ${account.status.value}',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: account.status.active ? Colors.green[100] : Colors.white70,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+                // Total Balance Card
+                _buildTotalBalanceCard(
+                  context,
+                  NumberFormat.currency(locale: 'en_US', symbol: '\$').format(totalBalance),
+                ),
+                const SizedBox(height: 24),
 
-  Widget _buildInvestmentCard(String title, IconData icon, List<Color> gradientColors) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: gradientColors,
-          ),
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: gradientColors[0].withOpacity(0.3),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: () {
-              // TODO: Navigate to specific investment category
-            },
-            borderRadius: BorderRadius.circular(20),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    icon,
-                    color: Colors.white,
-                    size: 32,
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    title,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
+                // Product Summary Section
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(
+                    'Product Summary',
+                    style: TextStyle(
+                      fontSize: 20,
                       fontWeight: FontWeight.bold,
+                      color: Colors.grey[800],
                     ),
                   ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+                ),
+                const SizedBox(height: 16),
 
-  Widget _buildProfileScreen() {
-    return ProfileScreen(user: widget.user);
-  }
+                // Savings Section
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                  child: _buildProductSummaryCard(
+                    'Savings',
+                    NumberFormat.currency(locale: 'en_US', symbol: '\$').format(totalBalance),
+                    FontAwesomeIcons.piggyBank,
+                  ),
+                ),
 
-  Widget _buildMainContent() {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Color(0xFF6B4EFF),
-                Color(0xFF9747FF),
-              ],
-            ),
-            borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(25),
-              bottomRight: Radius.circular(25),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Color(0x1A000000),
-                blurRadius: 10,
-                offset: Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Row(
-            children: [
-              CircleAvatar(
-                radius: 20,
-                backgroundImage: NetworkImage(
-                  'https://ui-avatars.com/api/?name=${Uri.encodeComponent(widget.user?.displayName ?? "User")}&background=9747FF&color=fff',
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Welcome back,',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.white.withOpacity(0.7),
-                      ),
-                    ),
-                    Text(
-                      widget.user?.displayName ?? 'User',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(50),
-                ),
-                child: const Icon(
-                  Icons.notifications_outlined,
-                  color: Colors.white,
-                  size: 24,
-                ),
-              ),
-            ],
-          ),
-        ),
-        Expanded(
-          child: RefreshIndicator(
-            onRefresh: () async {
-              setState(() {
-                _savingsAccountsFuture = fetchSavingsAccounts();
-              });
-            },
-            child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 24),
-                  FutureBuilder<List<SavingsAccountModel>>(
-                    future: _savingsAccountsFuture,
-                    builder: (context, snapshot) {
-                      String amount = 'KES 0.00';
-                      if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-                        final totalSavings = snapshot.data!.fold<double>(
-                          0.0,
-                          (sum, account) => sum + (account.accountBalance ?? 0.0),
-                        );
-                        final firstAccount = snapshot.data!.first;
-                        amount =
-                            '${firstAccount.currency.displaySymbol} ${NumberFormat("#,##0.00", "en_US").format(totalSavings)}';
-                      }
-                      return _buildTotalBalanceCard(context, amount);
-                    },
-                  ),
-                  const SizedBox(height: 32),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Text(
-                      'Product Summary',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: const Color(0xFF2D3142),
-                          ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  FutureBuilder<List<SavingsAccountModel>>(
-                    future: _savingsAccountsFuture,
-                    builder: (context, snapshot) {
-                      String amount = 'KES 0.00';
-                      if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-                        final totalSavings = snapshot.data!.fold<double>(
-                          0.0,
-                          (sum, account) => sum + (account.accountBalance ?? 0.0),
-                        );
-                        final firstAccount = snapshot.data!.first;
-                        amount =
-                            '${firstAccount.currency.displaySymbol} ${NumberFormat("#,##0.00", "en_US").format(totalSavings)}';
-                      }
-                      return _buildProductSummaryCard(
-                        'Savings',
-                        amount,
-                        FontAwesomeIcons.piggyBank,
-                      );
-                    },
-                  ),
-                  _buildProductSummaryCard(
+                const SizedBox(height: 16),
+
+                // Loans Section
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                  child: _buildProductSummaryCard(
                     'Loans',
-                    'KES 0.00',
+                    'Apply Now',
                     FontAwesomeIcons.handHoldingDollar,
                   ),
-                  _buildProductSummaryCard(
+                ),
+
+                const SizedBox(height: 16),
+
+                // Share Capital Section
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                  child: _buildProductSummaryCard(
                     'Share Capital',
-                    'KES 0.00',
+                    'View Details',
                     FontAwesomeIcons.chartPie,
                   ),
-                ],
-              ),
+                ),
+
+                const SizedBox(height: 24),
+              ],
             ),
           ),
-        ),
-      ],
+        );
+      },
     );
+  }
+
+  List<Widget> _buildScreens() {
+    return [
+      _buildMainContent(),
+      InvestScreen(username: widget.username, password: widget.password, user: widget.user),
+      ProfileScreen(user: widget.user),
+    ];
   }
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> screens = [
-      _buildMainContent(),
-      const InvestScreen(),
-      _buildProfileScreen(),
-    ];
-
+    final screens = _buildScreens();
     return Scaffold(
       body: SafeArea(
         child: screens[_selectedIndex],
