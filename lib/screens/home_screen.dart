@@ -118,7 +118,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       elevation: 2,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
@@ -154,6 +153,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       title,
@@ -520,18 +520,38 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 // Top Menu Bar
                 Container(
-                  padding: const EdgeInsets.all(16.0),
+                  margin: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Color(0xFF1E88E5),  // Primary blue
+                        Color(0xFF1565C0),  // Darker blue
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF1E88E5).withOpacity(0.3),
+                        spreadRadius: 1,
+                        blurRadius: 10,
+                        offset: const Offset(0, 1),
+                      ),
+                    ],
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
+                          const Text(
                             'Welcome back,',
                             style: TextStyle(
                               fontSize: 14,
-                              color: Colors.grey[600],
+                              color: Colors.white70,
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -540,23 +560,37 @@ class _HomeScreenState extends State<HomeScreen> {
                             style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
+                              color: Colors.white,
                             ),
                           ),
                         ],
                       ),
-                      CircleAvatar(
-                        radius: 24,
-                        backgroundColor: Colors.grey[200],
-                        child: const Icon(
-                          Icons.person,
-                          size: 30,
-                          color: Colors.grey,
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              spreadRadius: 1,
+                              blurRadius: 5,
+                              offset: const Offset(0, 1),
+                            ),
+                          ],
+                        ),
+                        child: const CircleAvatar(
+                          radius: 24,
+                          backgroundColor: Colors.transparent,
+                          child: Icon(
+                            Icons.person,
+                            size: 30,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ],
                   ),
                 ),
-
                 // Total Balance Card
                 _buildTotalBalanceCard(
                   context,
@@ -567,52 +601,39 @@ class _HomeScreenState extends State<HomeScreen> {
                 // Product Summary Section
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Text(
-                    'Product Summary',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey[800],
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Product Summary',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey[800],
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      _buildProductSummaryCard(
+                        'Savings',
+                        NumberFormat.currency(locale: 'en_US', symbol: '\$').format(totalBalance),
+                        FontAwesomeIcons.piggyBank,
+                      ),
+                      const SizedBox(height: 8),
+                      _buildProductSummaryCard(
+                        'Loans',
+                        'Apply Now',
+                        FontAwesomeIcons.handHoldingDollar,
+                      ),
+                      const SizedBox(height: 8),
+                      _buildProductSummaryCard(
+                        'Share Capital',
+                        'View Details',
+                        FontAwesomeIcons.chartPie,
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 16),
-
-                // Savings Section
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 16),
-                  child: _buildProductSummaryCard(
-                    'Savings',
-                    NumberFormat.currency(locale: 'en_US', symbol: '\$').format(totalBalance),
-                    FontAwesomeIcons.piggyBank,
-                  ),
-                ),
-
-                const SizedBox(height: 16),
-
-                // Loans Section
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 16),
-                  child: _buildProductSummaryCard(
-                    'Loans',
-                    'Apply Now',
-                    FontAwesomeIcons.handHoldingDollar,
-                  ),
-                ),
-
-                const SizedBox(height: 16),
-
-                // Share Capital Section
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 16),
-                  child: _buildProductSummaryCard(
-                    'Share Capital',
-                    'View Details',
-                    FontAwesomeIcons.chartPie,
-                  ),
-                ),
-
-                const SizedBox(height: 24),
               ],
             ),
           ),
