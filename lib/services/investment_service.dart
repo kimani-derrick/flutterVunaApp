@@ -51,4 +51,66 @@ class InvestmentService {
       throw Exception('Error fetching savings products: $e');
     }
   }
+
+  static Future<List<Map<String, dynamic>>> getAccountTransactions(
+    String accountId, {
+    DateTime? fromDate,
+    DateTime? toDate,
+    double? fromAmount,
+    double? toAmount,
+  }) async {
+    try {
+      await _httpClient.init();
+
+      final apiCredentials =
+          base64Encode(utf8.encode('$_apiUsername:$_apiPassword'));
+
+      // Default to last 30 days if no dates provided
+      final now = DateTime.now();
+      final defaultFromDate = now.subtract(const Duration(days: 30));
+
+      final queryParams = {
+        'fromDate': (fromDate ?? defaultFromDate).toString().split(' ')[0],
+        'toDate': (toDate ?? now).toString().split(' ')[0],
+        'fromAmount': (fromAmount ?? 1).toString(),
+        'toAmount': (toAmount ?? 50000000).toString(),
+        'types': '1,2,3,4,20,21',
+        'orderBy': 'createdDate,transactionDate,id',
+        'sortOrder': 'DESC',
+        'dateFormat': 'yyyy-MM-dd',
+        'offset': '0',
+        'limit': '5', // Limit to 5 transactions
+      };
+
+      final response = await _httpClient.get(
+        '${ApiConfig.savingsAccountsEndpoint}/$accountId/transactions/search',
+        queryParameters: queryParams,
+        headers: {
+          'Authorization': 'Basic $apiCredentials',
+          'Fineract-Platform-TenantId': 'default',
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      print('Transactions API Response: ${response.statusCode}');
+      print('Transactions API Response Body: ${response.data}');
+
+      if (response.statusCode == 200) {
+        if (response.data is Map<String, dynamic>) {
+          final content = response.data['content'];
+          if (content is List) {
+            return List<Map<String, dynamic>>.from(content);
+          }
+        }
+        throw Exception(
+            'Invalid response format: content field not found or not a list');
+      } else {
+        throw Exception('Failed to load transactions: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('❌ Detailed error: $e');
+      throw Exception('Error fetching transactions: $e');
+    }
+  }
 }
