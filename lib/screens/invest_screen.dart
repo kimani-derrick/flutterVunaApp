@@ -53,7 +53,7 @@ class _InvestScreenState extends State<InvestScreen> {
       final products = await InvestmentService.getSavingsProducts();
       print('\n🌟 ========== FETCHED PRODUCTS ==========');
       print('Total products fetched: ${products.length}');
-      
+
       for (var product in products) {
         print('''
 📦 Product Details:
@@ -67,7 +67,7 @@ class _InvestScreenState extends State<InvestScreen> {
 ''');
       }
       print('======================================\n');
-      
+
       if (!mounted) return;
       setState(() {
         _savingsProducts = products;
@@ -83,7 +83,8 @@ class _InvestScreenState extends State<InvestScreen> {
     }
   }
 
-  void _showProductDetails(BuildContext context, String category, List<Map<String, dynamic>> products) {
+  void _showProductDetails(BuildContext context, String category,
+      List<Map<String, dynamic>> products) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -195,10 +196,12 @@ class _InvestScreenState extends State<InvestScreen> {
                                 ),
                                 const SizedBox(height: 16),
                                 ElevatedButton(
-                                  onPressed: () => _showInvestmentForm(context, product),
+                                  onPressed: () =>
+                                      _showInvestmentForm(context, product),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFF4C3FF7),
-                                    minimumSize: const Size(double.infinity, 48),
+                                    minimumSize:
+                                        const Size(double.infinity, 48),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(8),
                                     ),
@@ -282,7 +285,8 @@ class _InvestScreenState extends State<InvestScreen> {
                     decoration: const InputDecoration(
                       labelText: 'Investment Amount',
                       border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.attach_money),
+                      prefixIcon: Icon(Icons.money),
+                      prefixText: 'KES ',
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -343,8 +347,10 @@ class _InvestScreenState extends State<InvestScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text('Product: ${product['name']}'),
-                                Text('Amount: \$${_investmentAmountController.text}'),
-                                Text('Period: ${_investmentPeriodController.text} months'),
+                                Text(
+                                    'Amount: KES ${_investmentAmountController.text}'),
+                                Text(
+                                    'Period: ${_investmentPeriodController.text} months'),
                                 Text('Purpose: ${_purposeController.text}'),
                               ],
                             ),
@@ -358,16 +364,18 @@ class _InvestScreenState extends State<InvestScreen> {
                                   // TODO: Implement investment submission
                                   Navigator.pop(context); // Close dialog
                                   Navigator.pop(context); // Close form
-                                  Navigator.pop(context); // Close product details
-                                  
+                                  Navigator.pop(
+                                      context); // Close product details
+
                                   // Show success message
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
-                                      content: Text('Investment application submitted successfully!'),
+                                      content: Text(
+                                          'Investment application submitted successfully!'),
                                       backgroundColor: Colors.green,
                                     ),
                                   );
-                                  
+
                                   // Clear form
                                   _investmentAmountController.clear();
                                   _investmentPeriodController.clear();
@@ -409,24 +417,25 @@ class _InvestScreenState extends State<InvestScreen> {
 
   bool containsWholeWord(String text, String query) {
     // Create a regular expression to match the query as a whole word
-    final pattern = RegExp(r'\b' + RegExp.escape(query) + r'\b', caseSensitive: false);
+    final pattern =
+        RegExp(r'\b' + RegExp.escape(query) + r'\b', caseSensitive: false);
     return pattern.hasMatch(text);
   }
 
   List<Map<String, dynamic>> _getProductsByCategory(String category) {
     if (_savingsProducts == null) return [];
-    
+
     print('\n🔍 ========== FILTERING: $category ==========');
     print('📝 Search category: $category');
-    
+
     final filteredProducts = _savingsProducts!.where((product) {
       final productName = product['name'].toString();
       final productDescription = (product['description'] ?? '').toString();
-      
+
       // First try to match the entire category name
-      final fullMatch = containsWholeWord(productName, category) || 
-                       containsWholeWord(productDescription, category);
-      
+      final fullMatch = containsWholeWord(productName, category) ||
+          containsWholeWord(productDescription, category);
+
       if (fullMatch) {
         print('''
 🔎 Checking: ${product['name']}
@@ -435,14 +444,14 @@ class _InvestScreenState extends State<InvestScreen> {
 ''');
         return true;
       }
-      
+
       // If no full match, try matching individual words
       final categoryWords = category.split(' ');
       final matchedWords = <String>[];
-      
+
       bool nameMatch = false;
       bool descriptionMatch = false;
-      
+
       for (final word in categoryWords) {
         if (containsWholeWord(productName, word)) {
           nameMatch = true;
@@ -453,7 +462,7 @@ class _InvestScreenState extends State<InvestScreen> {
           matchedWords.add('$word (in description)');
         }
       }
-      
+
       print('''
 🔎 Checking: ${product['name']}
   - Name: $productName
@@ -463,10 +472,10 @@ class _InvestScreenState extends State<InvestScreen> {
   - Final result: ${(nameMatch || descriptionMatch) ? '✅ MATCHED' : '❌ NO MATCH'}
   - Matched words: ${matchedWords.join(', ')}
 ''');
-      
+
       return nameMatch || descriptionMatch;
     }).toList();
-    
+
     print('''
 ✨ Results for "$category":
   - Products checked: ${_savingsProducts!.length}
@@ -474,7 +483,7 @@ class _InvestScreenState extends State<InvestScreen> {
   - Matching products: ${filteredProducts.map((p) => p['name']).join(', ')}
 ''');
     print('==========================================\n');
-    
+
     return filteredProducts;
   }
 
@@ -483,53 +492,62 @@ class _InvestScreenState extends State<InvestScreen> {
       'title': 'Money Market Funds',
       'icon': FontAwesomeIcons.moneyBillTrendUp,
       'colors': [const Color(0xFFFFFFFF), const Color(0xFFF8F9FA)],
-      'image': 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?ixlib=rb-4.0.3&q=100&w=1500&auto=format&fit=crop',
+      'image':
+          'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?ixlib=rb-4.0.3&q=100&w=1500&auto=format&fit=crop',
     },
     {
       'title': 'Pension',
       'icon': FontAwesomeIcons.piggyBank,
       'colors': [const Color(0xFFFFFFFF), const Color(0xFFF8F9FA)],
-      'image': 'https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?ixlib=rb-4.0.3&q=100&w=1500&auto=format&fit=crop',
+      'image':
+          'https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?ixlib=rb-4.0.3&q=100&w=1500&auto=format&fit=crop',
     },
     {
       'title': 'SACCO',
       'icon': FontAwesomeIcons.handshake,
       'colors': [const Color(0xFFFFFFFF), const Color(0xFFF8F9FA)],
-      'image': 'https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?ixlib=rb-4.0.3&q=100&w=1500&auto=format&fit=crop',
+      'image':
+          'https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?ixlib=rb-4.0.3&q=100&w=1500&auto=format&fit=crop',
     },
     {
       'title': 'Real Estate',
       'icon': FontAwesomeIcons.building,
       'colors': [const Color(0xFFFFFFFF), const Color(0xFFF8F9FA)],
-      'image': 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&q=100&w=1500&auto=format&fit=crop',
+      'image':
+          'https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&q=100&w=1500&auto=format&fit=crop',
     },
     {
       'title': 'Insurance',
       'icon': FontAwesomeIcons.shieldHalved,
       'colors': [const Color(0xFFFFFFFF), const Color(0xFFF8F9FA)],
-      'image': 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?ixlib=rb-4.0.3&q=100&w=1500&auto=format&fit=crop',
+      'image':
+          'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?ixlib=rb-4.0.3&q=100&w=1500&auto=format&fit=crop',
     },
     {
       'title': 'Stocks',
       'icon': FontAwesomeIcons.chartLine,
       'colors': [const Color(0xFFFFFFFF), const Color(0xFFF8F9FA)],
-      'image': 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?ixlib=rb-4.0.3&q=100&w=1500&auto=format&fit=crop',
+      'image':
+          'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?ixlib=rb-4.0.3&q=100&w=1500&auto=format&fit=crop',
     },
     {
       'title': 'Chama',
       'icon': FontAwesomeIcons.peopleGroup,
       'colors': [const Color(0xFFFFFFFF), const Color(0xFFF8F9FA)],
-      'image': 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?ixlib=rb-4.0.3&q=100&w=1500&auto=format&fit=crop',
+      'image':
+          'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?ixlib=rb-4.0.3&q=100&w=1500&auto=format&fit=crop',
     },
     {
       'title': 'Charity',
       'icon': FontAwesomeIcons.heart,
       'colors': [const Color(0xFFFFFFFF), const Color(0xFFF8F9FA)],
-      'image': 'https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?ixlib=rb-4.0.3&q=100&w=1500&auto=format&fit=crop',
+      'image':
+          'https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?ixlib=rb-4.0.3&q=100&w=1500&auto=format&fit=crop',
     },
   ];
 
-  Widget _buildSummaryCard(String title, String value, IconData icon, List<Color> colors) {
+  Widget _buildSummaryCard(
+      String title, String value, IconData icon, List<Color> colors) {
     return Container(
       margin: const EdgeInsets.only(right: 16),
       padding: const EdgeInsets.all(16),
@@ -605,7 +623,7 @@ class _InvestScreenState extends State<InvestScreen> {
                   final category = _categories[index];
                   final products = _getProductsByCategory(category['title']);
                   final hasProducts = products.isNotEmpty;
-                  
+
                   return Card(
                     elevation: 4,
                     shape: RoundedRectangleBorder(
@@ -613,9 +631,10 @@ class _InvestScreenState extends State<InvestScreen> {
                     ),
                     clipBehavior: Clip.antiAlias,
                     child: InkWell(
-                      onTap: hasProducts 
-                        ? () => _showProductDetails(context, category['title'], products)
-                        : null,
+                      onTap: hasProducts
+                          ? () => _showProductDetails(
+                              context, category['title'], products)
+                          : null,
                       child: Stack(
                         fit: StackFit.expand,
                         children: [
@@ -625,7 +644,8 @@ class _InvestScreenState extends State<InvestScreen> {
                           ),
                           Positioned.fill(
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 8),
                               child: FittedBox(
                                 fit: BoxFit.scaleDown,
                                 child: Column(
@@ -646,7 +666,8 @@ class _InvestScreenState extends State<InvestScreen> {
                                     ),
                                     const SizedBox(height: 8),
                                     Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8, vertical: 4),
                                       decoration: BoxDecoration(
                                         color: Colors.white.withOpacity(0.9),
                                         borderRadius: BorderRadius.circular(4),
@@ -670,7 +691,8 @@ class _InvestScreenState extends State<InvestScreen> {
                                         ),
                                         decoration: BoxDecoration(
                                           color: Colors.white.withOpacity(0.9),
-                                          borderRadius: BorderRadius.circular(4),
+                                          borderRadius:
+                                              BorderRadius.circular(4),
                                         ),
                                         child: Text(
                                           '${products.length} product${products.length != 1 ? 's' : ''}',

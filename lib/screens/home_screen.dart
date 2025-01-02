@@ -66,7 +66,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
       final credentials = base64.encode(utf8.encode('$username:$password'));
       final response = await http.get(
-        Uri.parse('https://api.vuna.io/fineract-provider/api/v1/self/clients/$clientId/accounts'),
+        Uri.parse(
+            'https://api.vuna.io/fineract-provider/api/v1/self/clients/$clientId/accounts'),
         headers: {
           'accept': 'application/json',
           'Authorization': 'Basic $credentials',
@@ -80,12 +81,13 @@ class _HomeScreenState extends State<HomeScreen> {
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
         final List<dynamic> savingsAccounts = data['savingsAccounts'] ?? [];
-        
+
         return savingsAccounts
             .map((account) => SavingsAccountModel.fromJson(account))
             .toList();
       } else {
-        throw Exception('Failed to load savings accounts: ${response.statusCode}');
+        throw Exception(
+            'Failed to load savings accounts: ${response.statusCode}');
       }
     } catch (e) {
       debugPrint('Error fetching savings accounts: $e');
@@ -313,8 +315,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                       Container(
                                         padding: const EdgeInsets.all(12),
                                         decoration: BoxDecoration(
-                                          color: const Color(0xFF1E88E5).withOpacity(0.1),
-                                          borderRadius: BorderRadius.circular(12),
+                                          color: const Color(0xFF1E88E5)
+                                              .withOpacity(0.1),
+                                          borderRadius:
+                                              BorderRadius.circular(12),
                                         ),
                                         child: const Icon(
                                           FontAwesomeIcons.piggyBank,
@@ -325,7 +329,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                       const SizedBox(width: 16),
                                       Expanded(
                                         child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Text(
                                               account.productName,
@@ -350,13 +355,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                   const SizedBox(height: 16),
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 16, vertical: 10),
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFF1E88E5).withOpacity(0.1),
+                                      color: const Color(0xFF1E88E5)
+                                          .withOpacity(0.1),
                                       borderRadius: BorderRadius.circular(10),
                                     ),
                                     child: Text(
-                                      'Balance: ${NumberFormat.currency(locale: 'en_US', symbol: '\$').format(account.accountBalance)}',
+                                      'Balance: ${NumberFormat.currency(locale: 'en_KE', symbol: 'KES ').format(account.accountBalance)}',
                                       style: const TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w600,
@@ -420,7 +427,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(20),
@@ -527,7 +535,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 // Total Balance Card
                 _buildTotalBalanceCard(
                   context,
-                  NumberFormat.currency(locale: 'en_US', symbol: '\$').format(totalBalance),
+                  NumberFormat.currency(locale: 'en_KE', symbol: 'KES ')
+                      .format(totalBalance),
                 ),
                 const SizedBox(height: 24),
 
@@ -548,7 +557,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       const SizedBox(height: 12),
                       _buildProductSummaryCard(
                         'Savings',
-                        NumberFormat.currency(locale: 'en_US', symbol: '\$').format(totalBalance),
+                        NumberFormat.currency(locale: 'en_KE', symbol: 'KES ')
+                            .format(totalBalance),
                         FontAwesomeIcons.piggyBank,
                       ),
                       const SizedBox(height: 8),
@@ -578,7 +588,10 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Widget> _buildScreens() {
     return [
       _buildMainContent(),
-      InvestScreen(username: widget.username, password: widget.password, user: widget.user),
+      InvestScreen(
+          username: widget.username,
+          password: widget.password,
+          user: widget.user),
       ProfileScreen(user: widget.user),
     ];
   }
