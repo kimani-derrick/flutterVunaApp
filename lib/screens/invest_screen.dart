@@ -58,12 +58,10 @@ class _InvestScreenState extends State<InvestScreen> {
         print('''
 📦 Product Details:
   - Name: ${product['name']}
-  - Description: ${product['description']}
+  - Description: ${product['description'] ?? 'No description'}
   - Interest Rate: ${product['nominalAnnualInterestRate']}%
   - Currency: ${product['currency']['displayLabel']}
   - Account Rule: ${product['accountingRule']['value']}
-  - Interest Compounding: ${product['interestCompoundingPeriodType']['value']}
-  - Interest Posting: ${product['interestPostingPeriodType']['value']}
 ''');
       }
       print('======================================\n');
@@ -151,7 +149,7 @@ class _InvestScreenState extends State<InvestScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  product['name'],
+                                  product['name'] ?? 'Unknown Product',
                                   style: const TextStyle(
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold,
@@ -185,15 +183,21 @@ class _InvestScreenState extends State<InvestScreen> {
                                   style: const TextStyle(fontSize: 14),
                                 ),
                                 const SizedBox(height: 8),
-                                Text(
-                                  'Interest Compounding: ${product['interestCompoundingPeriodType']['value']}',
-                                  style: const TextStyle(fontSize: 14),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'Interest Posting: ${product['interestPostingPeriodType']['value']}',
-                                  style: const TextStyle(fontSize: 14),
-                                ),
+                                if (product['interestCompoundingPeriodType'] !=
+                                    null)
+                                  Text(
+                                    'Interest Compounding: ${product['interestCompoundingPeriodType']['value']}',
+                                    style: const TextStyle(fontSize: 14),
+                                  ),
+                                if (product['interestPostingPeriodType'] !=
+                                    null)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 8),
+                                    child: Text(
+                                      'Interest Posting: ${product['interestPostingPeriodType']['value']}',
+                                      style: const TextStyle(fontSize: 14),
+                                    ),
+                                  ),
                                 const SizedBox(height: 16),
                                 ElevatedButton(
                                   onPressed: () =>

@@ -1,12 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'screens/login_screen.dart';
-import 'screens/main_screen.dart';
-import 'screens/invest_screen.dart';
-import 'screens/profile_screen.dart';
-import 'models/user_model.dart';
+import 'config/env/dev_env.dart';
+import 'config/env/prod_env.dart';
+import 'config/env/staging_env.dart';
+import 'package:flutter/foundation.dart';
+import 'services/http_client.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize environment based on build configuration
+  if (kReleaseMode) {
+    initProdEnvironment();
+  } else if (const bool.fromEnvironment('STAGING')) {
+    initStagingEnvironment();
+  } else {
+    initDevEnvironment();
+  }
+
+  // Initialize HTTP client
+  await HttpClient().init();
+
   runApp(const MyApp());
 }
 
