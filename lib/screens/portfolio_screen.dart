@@ -61,12 +61,12 @@ class PortfolioScreen extends StatelessWidget {
   }
 
   Widget _buildPortfolioSummary() {
-    return Card(
+    return const Card(
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
+          children: [
             Text(
               'Total Portfolio Value',
               style: TextStyle(

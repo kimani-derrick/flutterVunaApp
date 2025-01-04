@@ -13,9 +13,9 @@ class HttpClient {
   Future<void> init() async {
     _dio.options.baseUrl = ApiConfig.baseUrl;
     _dio.options.connectTimeout =
-        Duration(milliseconds: ApiConfig.connectionTimeout);
+        const Duration(milliseconds: ApiConfig.connectionTimeout);
     _dio.options.receiveTimeout =
-        Duration(milliseconds: ApiConfig.receiveTimeout);
+        const Duration(milliseconds: ApiConfig.receiveTimeout);
     _dio.options.headers = ApiConfig.defaultHeaders;
 
     // Add interceptors
@@ -50,11 +50,20 @@ class HttpClient {
     }
   }
 
-  Future<Response> post(String path, {dynamic data}) async {
+  Future<Response> post(
+    String path, {
+    dynamic data,
+    Options? options,
+  }) async {
     try {
-      return await _dio.post(path, data: data);
+      final response = await _dio.post(
+        path,
+        data: data,
+        options: options,
+      );
+      return response;
     } catch (e) {
-      _logger.e('POST request failed: $e');
+      print('❌ POST request failed: $e');
       rethrow;
     }
   }

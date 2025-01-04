@@ -39,10 +39,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   onPressed: () => Navigator.pop(context),
                 ),
                 const SizedBox(height: 20),
-                Center(
+                const Center(
                   child: Text(
                     'Reset Password',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
@@ -57,7 +57,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(24.0),
-                    child: _emailSent ? _buildSuccessMessage() : _buildResetForm(),
+                    child:
+                        _emailSent ? _buildSuccessMessage() : _buildResetForm(),
                   ),
                 ),
               ],
@@ -198,7 +199,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         // TODO: Implement actual password reset logic here
         // For demo, we'll simulate an API call
         await Future.delayed(const Duration(seconds: 2));
-        
+
         setState(() {
           _isLoading = false;
           _emailSent = true;

@@ -2,12 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../services/api_service.dart';
 import '../models/user_model.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'signup_screen.dart';
 import 'forgot_username_screen.dart';
 import 'forgot_password_screen.dart';
 import 'home_screen.dart';
-import 'dart:convert';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -80,17 +78,22 @@ class _LoginScreenState extends State<LoginScreen> {
                               controller: _emailController,
                               decoration: InputDecoration(
                                 labelText: 'Email',
-                                prefixIcon: const Icon(FontAwesomeIcons.envelope, size: 20, color: Color(0xFF4C3FF7)),
+                                prefixIcon: const Icon(
+                                    FontAwesomeIcons.envelope,
+                                    size: 20,
+                                    color: Color(0xFF4C3FF7)),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(15),
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(15),
-                                  borderSide: BorderSide(color: Colors.grey[300]!),
+                                  borderSide:
+                                      BorderSide(color: Colors.grey[300]!),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(15),
-                                  borderSide: const BorderSide(color: Color(0xFF4C3FF7)),
+                                  borderSide: const BorderSide(
+                                      color: Color(0xFF4C3FF7)),
                                 ),
                                 filled: true,
                                 fillColor: Colors.white,
@@ -107,10 +110,13 @@ class _LoginScreenState extends State<LoginScreen> {
                               controller: _passwordController,
                               decoration: InputDecoration(
                                 labelText: 'Password',
-                                prefixIcon: const Icon(FontAwesomeIcons.lock, size: 20, color: Color(0xFF4C3FF7)),
+                                prefixIcon: const Icon(FontAwesomeIcons.lock,
+                                    size: 20, color: Color(0xFF4C3FF7)),
                                 suffixIcon: IconButton(
                                   icon: Icon(
-                                    _obscureText ? FontAwesomeIcons.eyeSlash : FontAwesomeIcons.eye,
+                                    _obscureText
+                                        ? FontAwesomeIcons.eyeSlash
+                                        : FontAwesomeIcons.eye,
                                     size: 20,
                                     color: Colors.grey[600],
                                   ),
@@ -125,11 +131,13 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(15),
-                                  borderSide: BorderSide(color: Colors.grey[300]!),
+                                  borderSide:
+                                      BorderSide(color: Colors.grey[300]!),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(15),
-                                  borderSide: const BorderSide(color: Color(0xFF4C3FF7)),
+                                  borderSide: const BorderSide(
+                                      color: Color(0xFF4C3FF7)),
                                 ),
                                 filled: true,
                                 fillColor: Colors.white,
@@ -151,7 +159,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => const ForgotUsernameScreen(),
+                                        builder: (context) =>
+                                            const ForgotUsernameScreen(),
                                       ),
                                     );
                                   },
@@ -168,7 +177,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => const ForgotPasswordScreen(),
+                                        builder: (context) =>
+                                            const ForgotPasswordScreen(),
                                       ),
                                     );
                                   },
@@ -234,7 +244,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const SignupScreen()),
+                        MaterialPageRoute(
+                            builder: (context) => const SignupScreen()),
                       );
                     },
                     child: RichText(
@@ -281,7 +292,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (response['success']) {
         print('🎉 Login successful, processing user data...');
-        
+
         // Get the user data from the response
         final userData = response['userData'];
         if (userData == null) {

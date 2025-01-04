@@ -30,7 +30,7 @@ class _MainScreenState extends State<MainScreen> {
       username: widget.username,
       password: widget.password,
     ),
-    InvestScreen(),
+    const InvestScreen(),
     ProfileScreen(user: widget.user),
   ];
 
@@ -61,13 +61,13 @@ class _MainScreenState extends State<MainScreen> {
             topRight: Radius.circular(30),
           ),
           child: Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  const Color(0xFF6C5DD3),
-                  const Color(0xFF8B80F8),
+                  Color(0xFF6C5DD3),
+                  Color(0xFF8B80F8),
                 ],
               ),
             ),

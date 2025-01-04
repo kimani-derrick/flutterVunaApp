@@ -40,10 +40,10 @@ class _ForgotUsernameScreenState extends State<ForgotUsernameScreen> {
                   onPressed: () => Navigator.pop(context),
                 ),
                 const SizedBox(height: 20),
-                Center(
+                const Center(
                   child: Text(
                     'Recover Username',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
@@ -58,7 +58,9 @@ class _ForgotUsernameScreenState extends State<ForgotUsernameScreen> {
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(24.0),
-                    child: _usernameSent ? _buildSuccessMessage() : _buildRecoveryForm(),
+                    child: _usernameSent
+                        ? _buildSuccessMessage()
+                        : _buildRecoveryForm(),
                   ),
                 ),
               ],
@@ -232,7 +234,7 @@ class _ForgotUsernameScreenState extends State<ForgotUsernameScreen> {
         // TODO: Implement actual username recovery logic here
         // For demo, we'll simulate an API call
         await Future.delayed(const Duration(seconds: 2));
-        
+
         setState(() {
           _isLoading = false;
           _usernameSent = true;

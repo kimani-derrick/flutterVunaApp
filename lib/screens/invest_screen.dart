@@ -134,8 +134,8 @@ class _InvestScreenState extends State<InvestScreen> {
                         children: [
                           Container(
                             padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              gradient: const LinearGradient(
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
                                 colors: [Color(0xFF4C3FF7), Color(0xFF7C3FFF)],
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
@@ -491,7 +491,7 @@ class _InvestScreenState extends State<InvestScreen> {
     return filteredProducts;
   }
 
-  List<Map<String, dynamic>> _categories = [
+  final List<Map<String, dynamic>> _categories = [
     {
       'title': 'Money Market Funds',
       'icon': FontAwesomeIcons.moneyBillTrendUp,
