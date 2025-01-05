@@ -22,8 +22,8 @@ class TopMenuBar extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Color(0xFF1E88E5),  // Primary blue
-            Color(0xFF1565C0),  // Darker blue
+            Color(0xFF1E88E5), // Primary blue
+            Color(0xFF1565C0), // Darker blue
           ],
         ),
         borderRadius: BorderRadius.circular(16),
