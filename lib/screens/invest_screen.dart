@@ -491,62 +491,80 @@ class _InvestScreenState extends State<InvestScreen> {
     return filteredProducts;
   }
 
-  final List<Map<String, dynamic>> _categories = [
+  List<Map<String, dynamic>> _categories = [
     {
-      'title': 'Money Market Funds',
-      'icon': FontAwesomeIcons.moneyBillTrendUp,
-      'colors': [const Color(0xFFFFFFFF), const Color(0xFFF8F9FA)],
-      'image':
-          'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?ixlib=rb-4.0.3&q=100&w=1500&auto=format&fit=crop',
-    },
-    {
-      'title': 'Pension',
-      'icon': FontAwesomeIcons.piggyBank,
-      'colors': [const Color(0xFFFFFFFF), const Color(0xFFF8F9FA)],
-      'image':
-          'https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?ixlib=rb-4.0.3&q=100&w=1500&auto=format&fit=crop',
-    },
-    {
-      'title': 'SACCO',
-      'icon': FontAwesomeIcons.handshake,
-      'colors': [const Color(0xFFFFFFFF), const Color(0xFFF8F9FA)],
-      'image':
-          'https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?ixlib=rb-4.0.3&q=100&w=1500&auto=format&fit=crop',
-    },
-    {
-      'title': 'Real Estate',
-      'icon': FontAwesomeIcons.building,
-      'colors': [const Color(0xFFFFFFFF), const Color(0xFFF8F9FA)],
-      'image':
-          'https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&q=100&w=1500&auto=format&fit=crop',
+      'title': 'Loans',
+      'icon': FontAwesomeIcons.handHoldingDollar,
+      'color': const Color(0xFF4C3FF7),
+      'filter': (product) =>
+          product['name'].toString().toLowerCase().contains('loan') ||
+          product['name'].toString().toLowerCase().contains('mobile') ||
+          product['name'].toString().toLowerCase().contains('emergency') ||
+          product['name'].toString().toLowerCase().contains('repair'),
     },
     {
       'title': 'Insurance',
       'icon': FontAwesomeIcons.shieldHalved,
-      'colors': [const Color(0xFFFFFFFF), const Color(0xFFF8F9FA)],
-      'image':
-          'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?ixlib=rb-4.0.3&q=100&w=1500&auto=format&fit=crop',
+      'color': const Color(0xFF00C853),
+      'filter': (product) =>
+          product['name'].toString().toLowerCase().contains('insurance') ||
+          product['name'].toString().toLowerCase().contains('cover') ||
+          product['name'].toString().toLowerCase().contains('protection') ||
+          product['name'].toString().toLowerCase().contains('accident'),
     },
     {
-      'title': 'Stocks',
-      'icon': FontAwesomeIcons.chartLine,
-      'colors': [const Color(0xFFFFFFFF), const Color(0xFFF8F9FA)],
-      'image':
-          'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?ixlib=rb-4.0.3&q=100&w=1500&auto=format&fit=crop',
-    },
-    {
-      'title': 'Chama',
+      'title': 'Merry Go Round',
       'icon': FontAwesomeIcons.peopleGroup,
-      'colors': [const Color(0xFFFFFFFF), const Color(0xFFF8F9FA)],
-      'image':
-          'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?ixlib=rb-4.0.3&q=100&w=1500&auto=format&fit=crop',
+      'color': const Color(0xFFFF5722),
+      'filter': (product) =>
+          product['name'].toString().toLowerCase().contains('group') ||
+          product['name'].toString().toLowerCase().contains('daily') ||
+          product['name'].toString().toLowerCase().contains('weekly') ||
+          product['name'].toString().toLowerCase().contains('monthly'),
     },
     {
-      'title': 'Charity',
-      'icon': FontAwesomeIcons.heart,
-      'colors': [const Color(0xFFFFFFFF), const Color(0xFFF8F9FA)],
-      'image':
-          'https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?ixlib=rb-4.0.3&q=100&w=1500&auto=format&fit=crop',
+      'title': 'Savings',
+      'icon': FontAwesomeIcons.piggyBank,
+      'color': const Color(0xFF2196F3),
+      'filter': (product) =>
+          product['name'].toString().toLowerCase().contains('saving') ||
+          product['name'].toString().toLowerCase().contains('deposit'),
+    },
+    {
+      'title': 'Green Mobility',
+      'icon': FontAwesomeIcons.leaf,
+      'color': const Color(0xFF4CAF50),
+      'filter': (product) =>
+          product['name'].toString().toLowerCase().contains('electric') ||
+          product['name'].toString().toLowerCase().contains('carbon') ||
+          product['name'].toString().toLowerCase().contains('battery'),
+    },
+    {
+      'title': 'Discounts',
+      'icon': FontAwesomeIcons.tags,
+      'color': const Color(0xFFFF9800),
+      'filter': (product) =>
+          product['name'].toString().toLowerCase().contains('discount') ||
+          product['name'].toString().toLowerCase().contains('offer') ||
+          product['name'].toString().toLowerCase().contains('deal'),
+    },
+    {
+      'title': 'Boda Jobs',
+      'icon': FontAwesomeIcons.briefcase,
+      'color': const Color(0xFF9C27B0),
+      'filter': (product) =>
+          product['name'].toString().toLowerCase().contains('job') ||
+          product['name'].toString().toLowerCase().contains('delivery') ||
+          product['name'].toString().toLowerCase().contains('task'),
+    },
+    {
+      'title': 'Training & Safety',
+      'icon': FontAwesomeIcons.graduationCap,
+      'color': const Color(0xFF3F51B5),
+      'filter': (product) =>
+          product['name'].toString().toLowerCase().contains('training') ||
+          product['name'].toString().toLowerCase().contains('course') ||
+          product['name'].toString().toLowerCase().contains('safety'),
     },
   ];
 
@@ -618,7 +636,7 @@ class _InvestScreenState extends State<InvestScreen> {
                 padding: const EdgeInsets.all(16),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
-                  childAspectRatio: 1.0,
+                  childAspectRatio: 0.85,
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
                 ),
@@ -628,88 +646,66 @@ class _InvestScreenState extends State<InvestScreen> {
                   final products = _getProductsByCategory(category['title']);
                   final hasProducts = products.isNotEmpty;
 
-                  return Card(
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    clipBehavior: Clip.antiAlias,
-                    child: InkWell(
-                      onTap: hasProducts
-                          ? () => _showProductDetails(
-                              context, category['title'], products)
-                          : null,
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          Image.network(
-                            category['image'],
-                            fit: BoxFit.cover,
+                  return GestureDetector(
+                    onTap: hasProducts
+                        ? () => _showProductDetails(
+                            context, category['title'], products)
+                        : null,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: category['color'].withOpacity(0.2),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
                           ),
-                          Positioned.fill(
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 8),
-                              child: FittedBox(
-                                fit: BoxFit.scaleDown,
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.all(8),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white.withOpacity(0.9),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Icon(
-                                        category['icon'],
-                                        color: Colors.black,
-                                        size: 24,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 8, vertical: 4),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white.withOpacity(0.9),
-                                        borderRadius: BorderRadius.circular(4),
-                                      ),
-                                      child: Text(
-                                        category['title'],
-                                        textAlign: TextAlign.center,
-                                        style: const TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                    if (products.isNotEmpty) ...[
-                                      const SizedBox(height: 4),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 4,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white.withOpacity(0.9),
-                                          borderRadius:
-                                              BorderRadius.circular(4),
-                                        ),
-                                        child: Text(
-                                          '${products.length} product${products.length != 1 ? 's' : ''}',
-                                          style: const TextStyle(
-                                            color: Colors.black,
-                                            fontSize: 10,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ],
-                                ),
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          Container(
+                            height: 100,
+                            decoration: BoxDecoration(
+                              color: category['color'],
+                              borderRadius: const BorderRadius.vertical(
+                                top: Radius.circular(16),
                               ),
+                            ),
+                            child: Center(
+                              child: Icon(
+                                category['icon'],
+                                color: Colors.white,
+                                size: 40,
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Column(
+                              children: [
+                                Text(
+                                  category['title'],
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  textAlign: TextAlign.center,
+                                ),
+                                if (products.isNotEmpty) ...[
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    '${products.length} product${products.length != 1 ? 's' : ''}',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: category['color'].withOpacity(0.8),
+                                    ),
+                                  ),
+                                ],
+                              ],
                             ),
                           ),
                         ],
