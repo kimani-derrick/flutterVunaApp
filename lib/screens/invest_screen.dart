@@ -426,62 +426,31 @@ class _InvestScreenState extends State<InvestScreen> {
     return pattern.hasMatch(text);
   }
 
-  List<Map<String, dynamic>> _getProductsByCategory(String category) {
+  List<Map<String, dynamic>> _getProductsByCategory(String categoryTitle) {
     if (_savingsProducts == null) return [];
 
-    print('\n🔍 ========== FILTERING: $category ==========');
-    print('📝 Search category: $category');
+    print('\n🔍 ========== FILTERING: $categoryTitle ==========');
+
+    // Find the category configuration
+    final category = _categories.firstWhere(
+      (cat) => cat['title'] == categoryTitle,
+      orElse: () => {'filter': (product) => false},
+    );
 
     final filteredProducts = _savingsProducts!.where((product) {
-      final productName = product['name'].toString();
-      final productDescription = (product['description'] ?? '').toString();
-
-      // First try to match the entire category name
-      final fullMatch = containsWholeWord(productName, category) ||
-          containsWholeWord(productDescription, category);
-
-      if (fullMatch) {
-        print('''
-🔎 Checking: ${product['name']}
-  - Full category match found! ✅
-  - Matched: "$category" in ${containsWholeWord(productName, category) ? 'name' : 'description'}
-''');
-        return true;
-      }
-
-      // If no full match, try matching individual words
-      final categoryWords = category.split(' ');
-      final matchedWords = <String>[];
-
-      bool nameMatch = false;
-      bool descriptionMatch = false;
-
-      for (final word in categoryWords) {
-        if (containsWholeWord(productName, word)) {
-          nameMatch = true;
-          matchedWords.add('$word (in name)');
-        }
-        if (containsWholeWord(productDescription, word)) {
-          descriptionMatch = true;
-          matchedWords.add('$word (in description)');
-        }
-      }
+      final matches = category['filter'](product);
 
       print('''
 🔎 Checking: ${product['name']}
-  - Name: $productName
-    Match by name? ${nameMatch ? '✅' : '❌'}
-  - Description: $productDescription
-    Match by description? ${descriptionMatch ? '✅' : '❌'}
-  - Final result: ${(nameMatch || descriptionMatch) ? '✅ MATCHED' : '❌ NO MATCH'}
-  - Matched words: ${matchedWords.join(', ')}
+  - Category: $categoryTitle
+  - Matches filter? ${matches ? '✅' : '❌'}
 ''');
 
-      return nameMatch || descriptionMatch;
+      return matches;
     }).toList();
 
     print('''
-✨ Results for "$category":
+✨ Results for "$categoryTitle":
   - Products checked: ${_savingsProducts!.length}
   - Matches found: ${filteredProducts.length}
   - Matching products: ${filteredProducts.map((p) => p['name']).join(', ')}
@@ -496,6 +465,7 @@ class _InvestScreenState extends State<InvestScreen> {
       'title': 'Loans',
       'icon': FontAwesomeIcons.handHoldingDollar,
       'color': const Color(0xFF4C3FF7),
+      'description': 'Flexible financing options for your needs',
       'filter': (product) =>
           product['name'].toString().toLowerCase().contains('loan') ||
           product['name'].toString().toLowerCase().contains('mobile') ||
@@ -506,6 +476,7 @@ class _InvestScreenState extends State<InvestScreen> {
       'title': 'Insurance',
       'icon': FontAwesomeIcons.shieldHalved,
       'color': const Color(0xFF00C853),
+      'description': 'Protect yourself and your business',
       'filter': (product) =>
           product['name'].toString().toLowerCase().contains('insurance') ||
           product['name'].toString().toLowerCase().contains('cover') ||
@@ -516,6 +487,7 @@ class _InvestScreenState extends State<InvestScreen> {
       'title': 'Merry Go Round',
       'icon': FontAwesomeIcons.peopleGroup,
       'color': const Color(0xFFFF5722),
+      'description': 'Join group savings and support each other',
       'filter': (product) =>
           product['name'].toString().toLowerCase().contains('group') ||
           product['name'].toString().toLowerCase().contains('daily') ||
@@ -526,6 +498,7 @@ class _InvestScreenState extends State<InvestScreen> {
       'title': 'Savings',
       'icon': FontAwesomeIcons.piggyBank,
       'color': const Color(0xFF2196F3),
+      'description': 'Secure your future with smart savings',
       'filter': (product) =>
           product['name'].toString().toLowerCase().contains('saving') ||
           product['name'].toString().toLowerCase().contains('deposit'),
@@ -534,6 +507,7 @@ class _InvestScreenState extends State<InvestScreen> {
       'title': 'Green Mobility',
       'icon': FontAwesomeIcons.leaf,
       'color': const Color(0xFF4CAF50),
+      'description': 'Earn rewards for eco-friendly choices',
       'filter': (product) =>
           product['name'].toString().toLowerCase().contains('electric') ||
           product['name'].toString().toLowerCase().contains('carbon') ||
@@ -543,6 +517,7 @@ class _InvestScreenState extends State<InvestScreen> {
       'title': 'Discounts',
       'icon': FontAwesomeIcons.tags,
       'color': const Color(0xFFFF9800),
+      'description': 'Exclusive deals for members',
       'filter': (product) =>
           product['name'].toString().toLowerCase().contains('discount') ||
           product['name'].toString().toLowerCase().contains('offer') ||
@@ -552,6 +527,7 @@ class _InvestScreenState extends State<InvestScreen> {
       'title': 'Boda Jobs',
       'icon': FontAwesomeIcons.briefcase,
       'color': const Color(0xFF9C27B0),
+      'description': 'Find opportunities and grow',
       'filter': (product) =>
           product['name'].toString().toLowerCase().contains('job') ||
           product['name'].toString().toLowerCase().contains('delivery') ||
@@ -561,10 +537,22 @@ class _InvestScreenState extends State<InvestScreen> {
       'title': 'Training & Safety',
       'icon': FontAwesomeIcons.graduationCap,
       'color': const Color(0xFF3F51B5),
+      'description': 'Learn and stay safe on the road',
       'filter': (product) =>
-          product['name'].toString().toLowerCase().contains('training') ||
-          product['name'].toString().toLowerCase().contains('course') ||
-          product['name'].toString().toLowerCase().contains('safety'),
+          {
+            'training',
+            'course',
+            'certification',
+            'learn',
+            'education',
+            'workshop'
+          }.any((word) =>
+              product['name'].toString().toLowerCase().contains(word)) ||
+          product['description']
+              .toString()
+              .toLowerCase()
+              .contains('training') ||
+          product['description'].toString().toLowerCase().contains('education'),
     },
   ];
 
@@ -692,6 +680,17 @@ class _InvestScreenState extends State<InvestScreen> {
                                     fontWeight: FontWeight.bold,
                                   ),
                                   maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  category['description'],
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey[600],
+                                  ),
+                                  maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                   textAlign: TextAlign.center,
                                 ),
