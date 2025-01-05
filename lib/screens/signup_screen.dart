@@ -173,7 +173,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 ),
                 _buildTextField(
                   controller: _officeIdController,
-                  hint: 'Office ID',
+                  hint: 'Sacco ID',
                   icon: Icons.business,
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -230,14 +230,14 @@ class _SignupScreenState extends State<SignupScreen> {
                     }
                     return null;
                   },
-                  helperText: 'Password must:\n'
-                      '• Be 12-50 characters long\n'
-                      '• Not contain repeated characters\n'
-                      '• Not contain spaces\n'
-                      '• Include at least one number\n'
-                      '• Include at least one lowercase letter\n'
-                      '• Include at least one uppercase letter\n'
-                      '• Include at least one special character',
+                  helperText: 'Password must:'
+                      ' • Be at least 12 characters long'
+                      ' • No repeated characters'
+                      ' • No spaces'
+                      ' • Include at least one number'
+                      ' • one lowercase letter'
+                      ' • one uppercase letter'
+                      ' • one special character',
                 ),
                 _buildTextField(
                   controller: _confirmPasswordController,
@@ -352,7 +352,11 @@ class _SignupScreenState extends State<SignupScreen> {
           ),
           helperText: helperText,
           helperMaxLines: 10,
-          helperStyle: TextStyle(color: Colors.grey[700]),
+          helperStyle: const TextStyle(
+            color: Colors.white,
+            fontSize: 11,
+            height: 1.2,
+          ),
         ),
         validator: validator ??
             (value) {
