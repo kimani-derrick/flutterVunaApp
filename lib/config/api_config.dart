@@ -11,6 +11,7 @@ class ApiConfig {
   static String get savingsAccountsEndpoint => '/savingsaccounts';
   static String get clientsEndpoint => '/clients';
   static String get usersEndpoint => '/users';
+  static String get productsEndpoint => '/products';
 
   // Full URLs
   static String getAccountsUrl(String clientId) =>

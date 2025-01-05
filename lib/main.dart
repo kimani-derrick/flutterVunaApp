@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'screens/login_screen.dart';
+import 'screens/splash_screen.dart';
 import 'config/env/dev_env.dart';
 import 'config/env/prod_env.dart';
 import 'config/env/staging_env.dart';
@@ -64,7 +64,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const LoginScreen(),
+      home: const SplashScreen(),
     );
   }
 }
