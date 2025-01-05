@@ -24,6 +24,8 @@ class _SignupScreenState extends State<SignupScreen> {
   final _officeIdController = TextEditingController();
   bool _isLoading = false;
   String? _errorMessage;
+  bool _showPassword = false;
+  bool _showConfirmPassword = false;
 
   @override
   void dispose() {
@@ -195,12 +197,59 @@ class _SignupScreenState extends State<SignupScreen> {
                   hint: 'Password',
                   icon: Icons.lock_outline,
                   isPassword: true,
+                  showPassword: _showPassword,
+                  onTogglePassword: () {
+                    setState(() {
+                      _showPassword = !_showPassword;
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Password is required';
+                    }
+                    if (value.length < 12 || value.length > 50) {
+                      return 'Password must be 12 to 50 characters long';
+                    }
+                    if (value.contains(RegExp(r'(.)\1'))) {
+                      return 'Password cannot contain repeated characters';
+                    }
+                    if (value.contains(' ')) {
+                      return 'Password cannot contain spaces';
+                    }
+                    if (!value.contains(RegExp(r'[0-9]'))) {
+                      return 'Password must contain at least one number';
+                    }
+                    if (!value.contains(RegExp(r'[a-z]'))) {
+                      return 'Password must contain at least one lowercase letter';
+                    }
+                    if (!value.contains(RegExp(r'[A-Z]'))) {
+                      return 'Password must contain at least one uppercase letter';
+                    }
+                    if (!value.contains(RegExp(r'[^A-Za-z0-9\s]'))) {
+                      return 'Password must contain at least one special character';
+                    }
+                    return null;
+                  },
+                  helperText: 'Password must:\n'
+                      '• Be 12-50 characters long\n'
+                      '• Not contain repeated characters\n'
+                      '• Not contain spaces\n'
+                      '• Include at least one number\n'
+                      '• Include at least one lowercase letter\n'
+                      '• Include at least one uppercase letter\n'
+                      '• Include at least one special character',
                 ),
                 _buildTextField(
                   controller: _confirmPasswordController,
                   hint: 'Repeat Password',
                   icon: Icons.lock_outline,
                   isPassword: true,
+                  showPassword: _showConfirmPassword,
+                  onTogglePassword: () {
+                    setState(() {
+                      _showConfirmPassword = !_showConfirmPassword;
+                    });
+                  },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please confirm your password';
@@ -264,21 +313,33 @@ class _SignupScreenState extends State<SignupScreen> {
     required String hint,
     required IconData icon,
     bool isPassword = false,
+    bool showPassword = false,
+    VoidCallback? onTogglePassword,
     bool required = true,
     TextInputType? keyboardType,
     List<TextInputFormatter>? inputFormatters,
     String? Function(String?)? validator,
+    String? helperText,
   }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       child: TextFormField(
         controller: controller,
-        obscureText: isPassword,
+        obscureText: isPassword && !showPassword,
         keyboardType: keyboardType,
         inputFormatters: inputFormatters,
         decoration: InputDecoration(
           hintText: hint,
           prefixIcon: Icon(icon, color: Colors.grey),
+          suffixIcon: isPassword
+              ? IconButton(
+                  icon: Icon(
+                    showPassword ? Icons.visibility_off : Icons.visibility,
+                    color: Colors.grey,
+                  ),
+                  onPressed: onTogglePassword,
+                )
+              : null,
           filled: true,
           fillColor: Colors.white,
           border: OutlineInputBorder(
@@ -289,6 +350,9 @@ class _SignupScreenState extends State<SignupScreen> {
             horizontal: 16,
             vertical: 14,
           ),
+          helperText: helperText,
+          helperMaxLines: 10,
+          helperStyle: TextStyle(color: Colors.grey[700]),
         ),
         validator: validator ??
             (value) {
