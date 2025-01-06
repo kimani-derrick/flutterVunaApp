@@ -6,6 +6,7 @@ import 'signup_screen.dart';
 import 'forgot_username_screen.dart';
 import 'forgot_password_screen.dart';
 import 'home_screen.dart';
+import 'main_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -314,7 +315,7 @@ class _LoginScreenState extends State<LoginScreen> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => HomeScreen(
+            builder: (context) => MainScreen(
               username: _emailController.text,
               password: _passwordController.text,
               user: user,

@@ -25,14 +25,24 @@ class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
   late final List<Widget> _screens = [
+    InvestScreen(
+      user: widget.user,
+      username: widget.username,
+      password: widget.password,
+    ),
     HomeScreen(
       user: widget.user,
       username: widget.username,
       password: widget.password,
     ),
-    const InvestScreen(),
     ProfileScreen(user: widget.user),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = 0;
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -73,8 +83,8 @@ class _MainScreenState extends State<MainScreen> {
             ),
             child: BottomNavigationBar(
               items: [
-                _buildNavItem(FontAwesomeIcons.house, 'Home'),
                 _buildNavItem(FontAwesomeIcons.chartLine, 'Invest'),
+                _buildNavItem(FontAwesomeIcons.house, 'My Account'),
                 _buildNavItem(FontAwesomeIcons.user, 'Profile'),
               ],
               currentIndex: _selectedIndex,

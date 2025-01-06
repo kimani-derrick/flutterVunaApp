@@ -460,7 +460,7 @@ class _InvestScreenState extends State<InvestScreen> {
     return filteredProducts;
   }
 
-  List<Map<String, dynamic>> _categories = [
+  final List<Map<String, dynamic>> _categories = [
     {
       'title': 'Loans',
       'icon': FontAwesomeIcons.handHoldingDollar,
