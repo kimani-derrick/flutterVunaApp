@@ -31,13 +31,6 @@ class _HomeScreenState extends State<HomeScreen> {
   bool isLoading = true;
   String? errorMessage;
   Future<List<SavingsAccountModel>>? _savingsAccountsFuture;
-  int _selectedIndex = 0;
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
 
   @override
   void initState() {
@@ -566,81 +559,11 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  List<Widget> _buildScreens() {
-    return [
-      _buildMainContent(),
-      InvestScreen(
-          username: widget.username,
-          password: widget.password,
-          user: widget.user),
-      ProfileScreen(user: widget.user),
-    ];
-  }
-
   @override
   Widget build(BuildContext context) {
-    final screens = _buildScreens();
     return Scaffold(
       body: SafeArea(
-        child: screens[_selectedIndex],
-      ),
-      bottomNavigationBar: Container(
-        margin: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF6B4EFF),
-              Color(0xFF9747FF),
-            ],
-          ),
-          borderRadius: BorderRadius.circular(30),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF6B4EFF).withOpacity(0.3),
-              blurRadius: 15,
-              offset: const Offset(0, 8),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(30),
-          child: BottomNavigationBar(
-            currentIndex: _selectedIndex,
-            onTap: _onItemTapped,
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            selectedItemColor: Colors.white,
-            unselectedItemColor: Colors.white.withOpacity(0.6),
-            selectedFontSize: 14,
-            unselectedFontSize: 12,
-            type: BottomNavigationBarType.fixed,
-            items: const [
-              BottomNavigationBarItem(
-                icon: Padding(
-                  padding: EdgeInsets.only(bottom: 4),
-                  child: Icon(FontAwesomeIcons.house),
-                ),
-                label: 'Home',
-              ),
-              BottomNavigationBarItem(
-                icon: Padding(
-                  padding: EdgeInsets.only(bottom: 4),
-                  child: Icon(FontAwesomeIcons.chartLine),
-                ),
-                label: 'Invest',
-              ),
-              BottomNavigationBarItem(
-                icon: Padding(
-                  padding: EdgeInsets.only(bottom: 4),
-                  child: Icon(FontAwesomeIcons.user),
-                ),
-                label: 'Profile',
-              ),
-            ],
-          ),
-        ),
+        child: _buildMainContent(),
       ),
     );
   }
