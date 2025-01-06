@@ -56,18 +56,18 @@ class _HomeScreenState extends State<HomeScreen> {
       final fetchedSavingsAccounts = await _savingsAccountsFuture ?? [];
       final groups = await _groupAccountsFuture;
 
-      if (groups != null) {
-        double total = 0.0;
-        for (var group in groups) {
-          total += (group['balance'] as num?)?.toDouble() ?? 0.0;
-        }
-        setState(() {
-          savingsAccounts = fetchedSavingsAccounts;
-          groupAccounts = groups;
-          totalBalance = total;
-          isLoading = false;
-        });
+      // Calculate total balance from savings accounts
+      double total = 0.0;
+      for (var account in fetchedSavingsAccounts) {
+        total += account.accountBalance ?? 0.0;
       }
+
+      setState(() {
+        savingsAccounts = fetchedSavingsAccounts;
+        groupAccounts = groups;
+        totalBalance = total;
+        isLoading = false;
+      });
     } catch (e) {
       debugPrint('Error calculating total balance: $e');
       setState(() {
@@ -1100,157 +1100,160 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      _buildProductSummaryCard(
-                        'Savings',
-                        NumberFormat.currency(locale: 'en_KE', symbol: 'KES ')
-                            .format(totalBalance),
-                        FontAwesomeIcons.piggyBank,
-                        count: groupAccounts.length,
-                      ),
-                      const SizedBox(height: 8),
-                      _buildProductSummaryCard(
-                        'Loans',
-                        'Apply Now',
-                        FontAwesomeIcons.handHoldingDollar,
-                      ),
-                      const SizedBox(height: 8),
-                      _buildProductSummaryCard(
-                        'Share Capital',
-                        'View Details',
-                        FontAwesomeIcons.chartPie,
-                      ),
-                      const SizedBox(height: 8),
-                      Card(
-                        elevation: 2,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          side: BorderSide(
-                            color: const Color(0xFF424242).withOpacity(0.1),
-                            width: 1,
-                          ),
-                        ),
-                        child: InkWell(
-                          onTap: _showGroupAccounts,
-                          borderRadius: BorderRadius.circular(12),
-                          child: Stack(
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: Column(
                             children: [
-                              Padding(
-                                padding: const EdgeInsets.all(16),
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.all(12),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFFF5F5F5),
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: const Icon(
-                                        FontAwesomeIcons.peopleGroup,
-                                        color: Color(0xFF424242),
-                                        size: 24,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 16),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Row(
+                              _buildProductSummaryCard(
+                                'Savings',
+                                NumberFormat.currency(
+                                        locale: 'en_KE', symbol: 'KES ')
+                                    .format(totalBalance),
+                                FontAwesomeIcons.piggyBank,
+                                count: savingsAccounts.length,
+                              ),
+                              const SizedBox(height: 8),
+                              _buildProductSummaryCard(
+                                'Loans',
+                                'Apply Now',
+                                FontAwesomeIcons.handHoldingDollar,
+                              ),
+                              const SizedBox(height: 8),
+                              _buildProductSummaryCard(
+                                'Share Capital',
+                                'View Details',
+                                FontAwesomeIcons.chartPie,
+                              ),
+                              const SizedBox(height: 8),
+                              Card(
+                                elevation: 2,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  side: BorderSide(
+                                    color: const Color(0xFF424242)
+                                        .withOpacity(0.1),
+                                    width: 1,
+                                  ),
+                                ),
+                                child: InkWell(
+                                  onTap: _showGroupAccounts,
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16),
+                                    child: Row(
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.all(12),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFF5F5F5),
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                          ),
+                                          child: const Icon(
+                                            FontAwesomeIcons.peopleGroup,
+                                            color: Color(0xFF424242),
+                                            size: 24,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 16),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisSize: MainAxisSize.min,
                                             children: [
-                                              const Text(
-                                                'Merry Go Round',
-                                                style: TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Color(0xFF424242),
-                                                ),
-                                              ),
-                                              const SizedBox(width: 8),
-                                              Container(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 8,
-                                                        vertical: 2),
-                                                decoration: BoxDecoration(
-                                                  color: const Color(0xFF4C3FF7)
-                                                      .withOpacity(0.1),
-                                                  borderRadius:
-                                                      BorderRadius.circular(12),
-                                                ),
-                                                child: Row(
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: [
-                                                    Icon(
-                                                      FontAwesomeIcons
-                                                          .layerGroup,
-                                                      size: 12,
+                                              Row(
+                                                children: [
+                                                  const Text(
+                                                    'Merry Go Round',
+                                                    style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      color: Color(0xFF424242),
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 8),
+                                                  Container(
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                      horizontal: 8,
+                                                      vertical: 2,
+                                                    ),
+                                                    decoration: BoxDecoration(
                                                       color: const Color(
-                                                          0xFF4C3FF7),
+                                                              0xFF4C3FF7)
+                                                          .withOpacity(0.1),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              12),
                                                     ),
-                                                    const SizedBox(width: 4),
-                                                    const Text(
-                                                      'Has Groups',
-                                                      style: TextStyle(
-                                                        fontSize: 12,
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                        color:
-                                                            Color(0xFF4C3FF7),
-                                                      ),
+                                                    child: Row(
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      children: [
+                                                        const Icon(
+                                                          FontAwesomeIcons
+                                                              .layerGroup,
+                                                          size: 12,
+                                                          color:
+                                                              Color(0xFF4C3FF7),
+                                                        ),
+                                                        const SizedBox(
+                                                            width: 4),
+                                                        Text(
+                                                          '${groupAccounts.length} group${groupAccounts.length != 1 ? 's' : ''}',
+                                                          style:
+                                                              const TextStyle(
+                                                            fontSize: 12,
+                                                            fontWeight:
+                                                                FontWeight.w500,
+                                                            color: Color(
+                                                                0xFF4C3FF7),
+                                                          ),
+                                                        ),
+                                                      ],
                                                     ),
-                                                  ],
+                                                  ),
+                                                ],
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                NumberFormat.currency(
+                                                  locale: 'en_KE',
+                                                  symbol: 'KES ',
+                                                ).format(
+                                                    groupAccounts.fold<double>(
+                                                  0,
+                                                  (sum, group) =>
+                                                      sum +
+                                                      ((group['balance']
+                                                                  as num?)
+                                                              ?.toDouble() ??
+                                                          0.0),
+                                                )),
+                                                style: TextStyle(
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: const Color(0xFF424242)
+                                                      .withOpacity(0.8),
                                                 ),
                                               ),
                                             ],
                                           ),
-                                          const SizedBox(height: 4),
-                                          Text(
-                                            'View Groups',
-                                            style: TextStyle(
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.w500,
-                                              color: const Color(0xFF424242)
-                                                  .withOpacity(0.8),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Icon(
-                                      Icons.keyboard_arrow_down,
-                                      color: const Color(0xFF424242)
-                                          .withOpacity(0.5),
-                                      size: 24,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Positioned(
-                                right: 0,
-                                top: 0,
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8, vertical: 4),
-                                  decoration: const BoxDecoration(
-                                    color: Color(0xFF4C3FF7),
-                                    borderRadius: BorderRadius.only(
-                                      topRight: Radius.circular(12),
-                                      bottomLeft: Radius.circular(12),
-                                    ),
-                                  ),
-                                  child: const Text(
-                                    'Expandable',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w500,
+                                        ),
+                                        Icon(
+                                          Icons.keyboard_arrow_right,
+                                          color: const Color(0xFF424242)
+                                              .withOpacity(0.5),
+                                          size: 24,
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ),
                               ),
+                              const SizedBox(height: 16),
                             ],
                           ),
                         ),
@@ -1258,7 +1261,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 16),
               ],
             ),
           ),
@@ -1270,179 +1272,194 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: RefreshIndicator(
-        onRefresh: _refreshData,
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TopMenuBar(
-                title: 'Welcome back',
-                subtitle: 'Member',
-                userName: widget.user?.displayName ?? userName,
-              ),
-              if (isLoading)
-                const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(24.0),
-                    child: CircularProgressIndicator(),
-                  ),
-                )
-              else if (errorMessage != null)
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24.0),
-                    child: Text(
-                      'Error: $errorMessage',
-                      style: const TextStyle(color: Colors.red),
+      body: SafeArea(
+        child: RefreshIndicator(
+          onRefresh: _refreshData,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TopMenuBar(
+                  title: 'Welcome back',
+                  subtitle: 'Member',
+                  userName: widget.user?.displayName ?? userName,
+                ),
+                if (isLoading)
+                  const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(24.0),
+                      child: CircularProgressIndicator(),
                     ),
-                  ),
-                )
-              else
-                Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildBalanceCard(totalBalance),
-                      const SizedBox(height: 24),
-                      Text(
-                        'Products',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey[800],
-                        ),
+                  )
+                else if (errorMessage != null)
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Text(
+                        'Error: $errorMessage',
+                        style: const TextStyle(color: Colors.red),
                       ),
-                      const SizedBox(height: 12),
-                      _buildProductSummaryCard(
-                        'Savings',
-                        NumberFormat.currency(locale: 'en_KE', symbol: 'KES ')
-                            .format(totalBalance),
-                        FontAwesomeIcons.piggyBank,
-                        count: savingsAccounts.length,
-                      ),
-                      const SizedBox(height: 8),
-                      _buildProductSummaryCard(
-                        'Loans',
-                        'Apply Now',
-                        FontAwesomeIcons.handHoldingDollar,
-                      ),
-                      const SizedBox(height: 8),
-                      _buildProductSummaryCard(
-                        'Share Capital',
-                        'View Details',
-                        FontAwesomeIcons.chartPie,
-                      ),
-                      const SizedBox(height: 8),
-                      Card(
-                        elevation: 2,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          side: BorderSide(
-                            color: const Color(0xFF424242).withOpacity(0.1),
-                            width: 1,
+                    ),
+                  )
+                else
+                  Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildBalanceCard(totalBalance),
+                        const SizedBox(height: 24),
+                        Text(
+                          'Products',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey[800],
                           ),
                         ),
-                        child: InkWell(
-                          onTap: _showGroupAccounts,
-                          borderRadius: BorderRadius.circular(12),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFF5F5F5),
-                                    borderRadius: BorderRadius.circular(10),
+                        const SizedBox(height: 12),
+                        _buildProductSummaryCard(
+                          'Savings',
+                          NumberFormat.currency(locale: 'en_KE', symbol: 'KES ')
+                              .format(totalBalance),
+                          FontAwesomeIcons.piggyBank,
+                          count: savingsAccounts.length,
+                        ),
+                        const SizedBox(height: 8),
+                        _buildProductSummaryCard(
+                          'Loans',
+                          'Apply Now',
+                          FontAwesomeIcons.handHoldingDollar,
+                        ),
+                        const SizedBox(height: 8),
+                        _buildProductSummaryCard(
+                          'Share Capital',
+                          'View Details',
+                          FontAwesomeIcons.chartPie,
+                        ),
+                        const SizedBox(height: 8),
+                        Card(
+                          elevation: 2,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            side: BorderSide(
+                              color: const Color(0xFF424242).withOpacity(0.1),
+                              width: 1,
+                            ),
+                          ),
+                          child: InkWell(
+                            onTap: _showGroupAccounts,
+                            borderRadius: BorderRadius.circular(12),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFF5F5F5),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: const Icon(
+                                      FontAwesomeIcons.peopleGroup,
+                                      color: Color(0xFF424242),
+                                      size: 24,
+                                    ),
                                   ),
-                                  child: const Icon(
-                                    FontAwesomeIcons.peopleGroup,
-                                    color: Color(0xFF424242),
-                                    size: 24,
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          const Text(
-                                            'Merry Go Round',
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w600,
-                                              color: Color(0xFF424242),
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            const Text(
+                                              'Merry Go Round',
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w600,
+                                                color: Color(0xFF424242),
+                                              ),
                                             ),
-                                          ),
-                                          const SizedBox(width: 8),
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 8,
-                                              vertical: 2,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: const Color(0xFF4C3FF7)
-                                                  .withOpacity(0.1),
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                            ),
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                const Icon(
-                                                  FontAwesomeIcons.layerGroup,
-                                                  size: 12,
-                                                  color: Color(0xFF4C3FF7),
-                                                ),
-                                                const SizedBox(width: 4),
-                                                Text(
-                                                  '${groupAccounts.length} group${groupAccounts.length != 1 ? 's' : ''}',
-                                                  style: const TextStyle(
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.w500,
+                                            const SizedBox(width: 8),
+                                            Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                horizontal: 8,
+                                                vertical: 2,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: const Color(0xFF4C3FF7)
+                                                    .withOpacity(0.1),
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  const Icon(
+                                                    FontAwesomeIcons.layerGroup,
+                                                    size: 12,
                                                     color: Color(0xFF4C3FF7),
                                                   ),
-                                                ),
-                                              ],
+                                                  const SizedBox(width: 4),
+                                                  Text(
+                                                    '${groupAccounts.length} group${groupAccounts.length != 1 ? 's' : ''}',
+                                                    style: const TextStyle(
+                                                      fontSize: 12,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      color: Color(0xFF4C3FF7),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        'View Groups',
-                                        style: TextStyle(
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w500,
-                                          color: const Color(0xFF424242)
-                                              .withOpacity(0.8),
+                                          ],
                                         ),
-                                      ),
-                                    ],
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          NumberFormat.currency(
+                                            locale: 'en_KE',
+                                            symbol: 'KES ',
+                                          ).format(groupAccounts.fold<double>(
+                                            0,
+                                            (sum, group) =>
+                                                sum +
+                                                ((group['balance'] as num?)
+                                                        ?.toDouble() ??
+                                                    0.0),
+                                          )),
+                                          style: TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w500,
+                                            color: const Color(0xFF424242)
+                                                .withOpacity(0.8),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                Icon(
-                                  Icons.keyboard_arrow_right,
-                                  color:
-                                      const Color(0xFF424242).withOpacity(0.5),
-                                  size: 24,
-                                ),
-                              ],
+                                  Icon(
+                                    Icons.keyboard_arrow_right,
+                                    color: const Color(0xFF424242)
+                                        .withOpacity(0.5),
+                                    size: 24,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 24),
+                      ],
+                    ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

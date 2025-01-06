@@ -11,8 +11,8 @@ import 'dart:io';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Disable hardware acceleration on Android to avoid Vulkan issues
-  if (Platform.isAndroid) {
+  // Disable hardware acceleration on Android only in debug mode
+  if (Platform.isAndroid && kDebugMode) {
     debugDefaultTargetPlatformOverride = TargetPlatform.android;
   }
 
