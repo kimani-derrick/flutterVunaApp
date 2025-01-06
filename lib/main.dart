@@ -6,9 +6,15 @@ import 'config/env/prod_env.dart';
 import 'config/env/staging_env.dart';
 import 'package:flutter/foundation.dart';
 import 'services/http_client.dart';
+import 'dart:io';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Disable hardware acceleration on Android to avoid Vulkan issues
+  if (Platform.isAndroid) {
+    debugDefaultTargetPlatformOverride = TargetPlatform.android;
+  }
 
   // Initialize environment based on build configuration
   if (kReleaseMode) {
