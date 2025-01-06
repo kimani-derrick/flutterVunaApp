@@ -94,4 +94,70 @@ class GroupService {
       rethrow;
     }
   }
+
+  static Future<List<Map<String, dynamic>>> getGroupTransactions(
+    String accountId, {
+    String? fromDate,
+    String? toDate,
+  }) async {
+    try {
+      final credentials =
+          base64.encode(utf8.encode('$appUsername:$appPassword'));
+      final now = DateTime.now();
+      final defaultFromDate = DateTime(now.year - 1, now.month, now.day)
+          .toIso8601String()
+          .split('T')
+          .first;
+      final defaultToDate = now.toIso8601String().split('T').first;
+
+      debugPrint(
+          '\n🔍 Fetching transactions for savings account ID: $accountId');
+
+      final url =
+          Uri.parse('$baseUrl/savingsaccounts/$accountId/transactions/search'
+              '?fromDate=${fromDate ?? defaultFromDate}'
+              '&toDate=${toDate ?? defaultToDate}'
+              '&fromSubmittedDate=${fromDate ?? defaultFromDate}'
+              '&toSubmittedDate=${toDate ?? defaultToDate}'
+              '&fromAmount=1'
+              '&toAmount=50000000'
+              '&types=1,2,3,4,20,21'
+              '&orderBy=createdDate,transactionDate,id'
+              '&sortOrder=DESC'
+              '&dateFormat=yyyy-MM-dd');
+
+      debugPrint('URL: $url');
+      debugPrint('Headers: {');
+      debugPrint('  Authorization: Basic $credentials');
+      debugPrint('  fineract-platform-tenantid: default');
+      debugPrint('  accept: application/json');
+      debugPrint('}');
+
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Basic $credentials',
+          'fineract-platform-tenantid': 'default',
+          'accept': 'application/json',
+        },
+      );
+
+      debugPrint('\n📥 Response:');
+      debugPrint('Status Code: ${response.statusCode}');
+      debugPrint('Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        debugPrint('✅ Successfully fetched transactions');
+        return List<Map<String, dynamic>>.from(data['content'] ?? []);
+      } else {
+        debugPrint('❌ Failed to fetch transactions: ${response.statusCode}');
+        debugPrint('Response: ${response.body}');
+        throw Exception('Failed to fetch transactions');
+      }
+    } catch (e) {
+      debugPrint('❌ Error fetching transactions: $e');
+      rethrow;
+    }
+  }
 }

@@ -10,6 +10,7 @@ import '../screens/invest_screen.dart';
 import '../widgets/top_menu_bar.dart';
 import '../screens/mini_statement_screen.dart';
 import '../services/group_service.dart';
+import '../screens/group_transactions_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final String? username;
@@ -208,159 +209,182 @@ class _HomeScreenState extends State<HomeScreen> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          group['name'] ?? 'Unnamed Group',
-                                          style: const TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
+                            child: InkWell(
+                              onTap: () {
+                                if (group['savingsAccountId'] != null) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          GroupTransactionsScreen(
+                                        accountId: group['savingsAccountId']
+                                            .toString(),
+                                        groupName:
+                                            group['name'] ?? 'Unnamed Group',
+                                        accountNo:
+                                            group['savingsAccountNo'] ?? 'N/A',
                                       ),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 4,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: status == 'Active'
-                                              ? Colors.green.withOpacity(0.1)
-                                              : Colors.orange.withOpacity(0.1),
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                        ),
-                                        child: Text(
-                                          status,
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w500,
-                                            color: status == 'Active'
-                                                ? Colors.green
-                                                : Colors.orange,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 12),
-                                  Row(
-                                    children: [
-                                      Icon(
-                                        FontAwesomeIcons.hashtag,
-                                        size: 14,
-                                        color: Colors.grey[600],
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        accountNo,
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          color: Colors.grey[600],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  if (staffName != null) ...[
-                                    const SizedBox(height: 8),
+                                    ),
+                                  );
+                                }
+                              },
+                              borderRadius: BorderRadius.circular(12),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
                                     Row(
-                                      children: [
-                                        Icon(
-                                          FontAwesomeIcons.userTie,
-                                          size: 14,
-                                          color: Colors.grey[600],
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          'Staff: $staffName',
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: Colors.grey[600],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                  if (officeName != null) ...[
-                                    const SizedBox(height: 8),
-                                    Row(
-                                      children: [
-                                        Icon(
-                                          FontAwesomeIcons.building,
-                                          size: 14,
-                                          color: Colors.grey[600],
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          officeName,
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: Colors.grey[600],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                  if (submittedDate != null) ...[
-                                    const SizedBox(height: 8),
-                                    Row(
-                                      children: [
-                                        Icon(
-                                          FontAwesomeIcons.calendar,
-                                          size: 14,
-                                          color: Colors.grey[600],
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          'Created: ${DateFormat('MMM d, y').format(submittedDate)}',
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: Colors.grey[600],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                  const SizedBox(height: 16),
-                                  Container(
-                                    padding: const EdgeInsets.all(12),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFF4C3FF7)
-                                          .withOpacity(0.1),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Text(
-                                          'Balance',
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500,
-                                            color: Colors.grey[800],
+                                        Expanded(
+                                          child: Text(
+                                            group['name'] ?? 'Unnamed Group',
+                                            style: const TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                           ),
                                         ),
-                                        Text(
-                                          '$currency ${NumberFormat('#,##0.00').format(balance)}',
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                            color: Color(0xFF4C3FF7),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 4,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: status == 'Active'
+                                                ? Colors.green.withOpacity(0.1)
+                                                : Colors.orange
+                                                    .withOpacity(0.1),
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                          child: Text(
+                                            status,
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w500,
+                                              color: status == 'Active'
+                                                  ? Colors.green
+                                                  : Colors.orange,
+                                            ),
                                           ),
                                         ),
                                       ],
                                     ),
-                                  ),
-                                ],
+                                    const SizedBox(height: 12),
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          FontAwesomeIcons.hashtag,
+                                          size: 14,
+                                          color: Colors.grey[600],
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          group['savingsAccountNo'] ??
+                                              accountNo,
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.grey[600],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    if (staffName != null) ...[
+                                      const SizedBox(height: 8),
+                                      Row(
+                                        children: [
+                                          Icon(
+                                            FontAwesomeIcons.userTie,
+                                            size: 14,
+                                            color: Colors.grey[600],
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            'Staff: $staffName',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.grey[600],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                    if (officeName != null) ...[
+                                      const SizedBox(height: 8),
+                                      Row(
+                                        children: [
+                                          Icon(
+                                            FontAwesomeIcons.building,
+                                            size: 14,
+                                            color: Colors.grey[600],
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            officeName,
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.grey[600],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                    if (submittedDate != null) ...[
+                                      const SizedBox(height: 8),
+                                      Row(
+                                        children: [
+                                          Icon(
+                                            FontAwesomeIcons.calendar,
+                                            size: 14,
+                                            color: Colors.grey[600],
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            'Created: ${DateFormat('MMM d, y').format(submittedDate)}',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.grey[600],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                    const SizedBox(height: 16),
+                                    Container(
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFF4C3FF7)
+                                            .withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            'Balance',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.grey[800],
+                                            ),
+                                          ),
+                                          Text(
+                                            '$currency ${NumberFormat('#,##0.00').format(balance)}',
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                              color: Color(0xFF4C3FF7),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           );
@@ -419,13 +443,20 @@ class _HomeScreenState extends State<HomeScreen> {
             final savingsAccount = balanceData['savingsAccounts'][0];
             group['balance'] = savingsAccount['accountBalance'] ?? 0.0;
             group['currency'] = savingsAccount['currency'];
+            group['savingsAccountId'] = savingsAccount['id'];
+            group['savingsAccountNo'] = savingsAccount['accountNo'];
             debugPrint('✅ Added balance info for group $groupId:');
             debugPrint('Balance: ${group['balance']}');
             debugPrint('Currency: ${group['currency']}');
+            debugPrint(
+                'Savings Account ID: ${group['savingsAccountId']} (from savingsAccounts[0].id)');
+            debugPrint('Savings Account No: ${group['savingsAccountNo']}');
           } else {
             debugPrint('⚠️ No savings accounts found for group $groupId');
             group['balance'] = 0.0;
             group['currency'] = {'displaySymbol': 'KES'};
+            group['savingsAccountId'] = null;
+            group['savingsAccountNo'] = null;
           }
         } catch (e) {
           debugPrint('⚠️ Error fetching balance for group $groupId: $e');
