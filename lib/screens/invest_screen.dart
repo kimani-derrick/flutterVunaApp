@@ -624,7 +624,7 @@ class _InvestScreenState extends State<InvestScreen> {
                 padding: const EdgeInsets.all(16),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
-                  childAspectRatio: 0.85,
+                  childAspectRatio: 0.75,
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
                 ),
@@ -672,6 +672,7 @@ class _InvestScreenState extends State<InvestScreen> {
                           Padding(
                             padding: const EdgeInsets.all(12),
                             child: Column(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text(
                                   category['title'],
@@ -695,7 +696,7 @@ class _InvestScreenState extends State<InvestScreen> {
                                   textAlign: TextAlign.center,
                                 ),
                                 if (products.isNotEmpty) ...[
-                                  const SizedBox(height: 8),
+                                  const SizedBox(height: 4),
                                   Text(
                                     '${products.length} product${products.length != 1 ? 's' : ''}',
                                     style: TextStyle(

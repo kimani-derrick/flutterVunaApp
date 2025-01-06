@@ -9,6 +9,7 @@ import '../screens/profile_screen.dart';
 import '../screens/invest_screen.dart';
 import '../widgets/top_menu_bar.dart';
 import '../screens/mini_statement_screen.dart';
+import '../services/group_service.dart';
 
 class HomeScreen extends StatefulWidget {
   final String? username;
@@ -28,14 +29,17 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   List<SavingsAccountModel> savingsAccounts = [];
+  List<Map<String, dynamic>> groupAccounts = [];
   bool isLoading = true;
   String? errorMessage;
   Future<List<SavingsAccountModel>>? _savingsAccountsFuture;
+  Future<List<Map<String, dynamic>>>? _groupAccountsFuture;
 
   @override
   void initState() {
     super.initState();
     _savingsAccountsFuture = fetchSavingsAccounts();
+    _groupAccountsFuture = fetchGroupAccounts();
   }
 
   @override
@@ -54,11 +58,21 @@ class _HomeScreenState extends State<HomeScreen> {
       final password = widget.password;
       final clientId = widget.user?.id;
 
+      debugPrint('\n🔐 Savings Auth Details:');
+      debugPrint('Username: $username');
+      debugPrint('Password: [REDACTED]');
+      debugPrint('ClientId: $clientId');
+
       if (username == null || password == null || clientId == null) {
         throw Exception('Missing credentials or client ID');
       }
 
       final credentials = base64.encode(utf8.encode('$username:$password'));
+      debugPrint('\nSavings API Call:');
+      debugPrint(
+          'URL: https://api.vuna.io/fineract-provider/api/v1/self/clients/$clientId/accounts');
+      debugPrint('Authorization: Basic $credentials');
+
       final response = await http.get(
         Uri.parse(
             'https://api.vuna.io/fineract-provider/api/v1/self/clients/$clientId/accounts'),
@@ -93,6 +107,347 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         isLoading = false;
       });
+    }
+  }
+
+  void _showGroupAccounts() {
+    debugPrint('\n🎯 _showGroupAccounts called');
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        debugPrint('🏗️ Building bottom sheet');
+        return DraggableScrollableSheet(
+          initialChildSize: 0.9,
+          minChildSize: 0.5,
+          maxChildSize: 0.95,
+          builder: (_, controller) => Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Merry Go Round Groups',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Expanded(
+                  child: FutureBuilder<List<Map<String, dynamic>>>(
+                    future: _groupAccountsFuture,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+
+                      if (snapshot.hasError) {
+                        debugPrint('Error in group display: ${snapshot.error}');
+                        return Center(
+                          child: Text('Error: ${snapshot.error}'),
+                        );
+                      }
+
+                      final groups = snapshot.data ?? [];
+                      debugPrint(
+                          'Number of groups to display: ${groups.length}');
+
+                      if (groups.isEmpty) {
+                        return const Center(
+                          child: Text(
+                            'No group accounts found',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        );
+                      }
+
+                      return ListView.builder(
+                        controller: controller,
+                        itemCount: groups.length,
+                        itemBuilder: (context, index) {
+                          final group = groups[index];
+                          final balance = group['balance'] ?? 0.0;
+                          final currency =
+                              group['currency']?['displaySymbol'] ?? 'KES';
+                          final status = group['status']?['value'] ?? 'Unknown';
+                          final accountNo = group['accountNo'] ?? 'N/A';
+                          final staffName = group['staffName'];
+                          final officeName = group['officeName'];
+                          final submittedDate =
+                              group['timeline']?['submittedOnDate'] != null
+                                  ? DateTime(
+                                      group['timeline']['submittedOnDate'][0],
+                                      group['timeline']['submittedOnDate'][1],
+                                      group['timeline']['submittedOnDate'][2],
+                                    )
+                                  : null;
+
+                          return Card(
+                            margin: const EdgeInsets.only(bottom: 16),
+                            elevation: 4,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          group['name'] ?? 'Unnamed Group',
+                                          style: const TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 4,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: status == 'Active'
+                                              ? Colors.green.withOpacity(0.1)
+                                              : Colors.orange.withOpacity(0.1),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                        child: Text(
+                                          status,
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w500,
+                                            color: status == 'Active'
+                                                ? Colors.green
+                                                : Colors.orange,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        FontAwesomeIcons.hashtag,
+                                        size: 14,
+                                        color: Colors.grey[600],
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        accountNo,
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.grey[600],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  if (staffName != null) ...[
+                                    const SizedBox(height: 8),
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          FontAwesomeIcons.userTie,
+                                          size: 14,
+                                          color: Colors.grey[600],
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          'Staff: $staffName',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.grey[600],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                  if (officeName != null) ...[
+                                    const SizedBox(height: 8),
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          FontAwesomeIcons.building,
+                                          size: 14,
+                                          color: Colors.grey[600],
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          officeName,
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.grey[600],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                  if (submittedDate != null) ...[
+                                    const SizedBox(height: 8),
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          FontAwesomeIcons.calendar,
+                                          size: 14,
+                                          color: Colors.grey[600],
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          'Created: ${DateFormat('MMM d, y').format(submittedDate)}',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.grey[600],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                  const SizedBox(height: 16),
+                                  Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF4C3FF7)
+                                          .withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          'Balance',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.grey[800],
+                                          ),
+                                        ),
+                                        Text(
+                                          '$currency ${NumberFormat('#,##0.00').format(balance)}',
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: Color(0xFF4C3FF7),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<List<Map<String, dynamic>>> fetchGroupAccounts() async {
+    try {
+      final officeId = widget.user?.officeId;
+      final clientId = widget.user?.id;
+      debugPrint('\n🔄 Fetching group accounts...');
+      debugPrint('Office ID: $officeId');
+      debugPrint('Client ID: $clientId');
+      debugPrint('Username being used: ${widget.username}');
+
+      if (widget.username == null ||
+          widget.password == null ||
+          officeId == null) {
+        debugPrint('❌ Missing credentials or office ID');
+        throw Exception('Missing credentials or office ID');
+      }
+
+      final groups = await GroupService.getGroupsByOfficeId(
+        widget.username!,
+        widget.password!,
+        officeId.toString(),
+      );
+
+      debugPrint('\n📊 Found ${groups.length} groups');
+
+      // Fetch balances for each group
+      for (var group in groups) {
+        final groupId = group['id'].toString();
+        debugPrint('\n💰 Fetching balance for group $groupId');
+
+        try {
+          final balanceData = await GroupService.getGroupBalance(
+            widget.username!,
+            widget.password!,
+            groupId,
+          );
+
+          // Add balance information to the group data
+          if (balanceData['savingsAccounts'] != null &&
+              (balanceData['savingsAccounts'] as List).isNotEmpty) {
+            final savingsAccount = balanceData['savingsAccounts'][0];
+            group['balance'] = savingsAccount['accountBalance'] ?? 0.0;
+            group['currency'] = savingsAccount['currency'];
+            debugPrint('✅ Added balance info for group $groupId:');
+            debugPrint('Balance: ${group['balance']}');
+            debugPrint('Currency: ${group['currency']}');
+          } else {
+            debugPrint('⚠️ No savings accounts found for group $groupId');
+            group['balance'] = 0.0;
+            group['currency'] = {'displaySymbol': 'KES'};
+          }
+        } catch (e) {
+          debugPrint('⚠️ Error fetching balance for group $groupId: $e');
+          group['balance'] = 0.0;
+          group['currency'] = {'displaySymbol': 'KES'};
+        }
+      }
+
+      debugPrint('\n✅ Final groups data:');
+      for (var group in groups) {
+        debugPrint('Group: ${group['name']}');
+        debugPrint('Balance: ${group['balance']}');
+        debugPrint('Currency: ${group['currency']}');
+      }
+
+      return groups;
+    } catch (e) {
+      debugPrint('\n❌ Error fetching group accounts: $e');
+      setState(() {
+        errorMessage = e.toString();
+      });
+      return [];
     }
   }
 
@@ -546,6 +901,74 @@ class _HomeScreenState extends State<HomeScreen> {
                         'Share Capital',
                         'View Details',
                         FontAwesomeIcons.chartPie,
+                      ),
+                      const SizedBox(height: 8),
+                      Card(
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(
+                            color: const Color(0xFF424242).withOpacity(0.1),
+                            width: 1,
+                          ),
+                        ),
+                        child: InkWell(
+                          onTap: _showGroupAccounts,
+                          borderRadius: BorderRadius.circular(12),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFF5F5F5),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: const Icon(
+                                    FontAwesomeIcons.peopleGroup,
+                                    color: Color(0xFF424242),
+                                    size: 24,
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Text(
+                                        'Merry Go Round',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                          color: Color(0xFF424242),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        'View Groups',
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w500,
+                                          color: const Color(0xFF424242)
+                                              .withOpacity(0.8),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.arrow_forward_ios,
+                                  color:
+                                      const Color(0xFF424242).withOpacity(0.5),
+                                  size: 16,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                       ),
                     ],
                   ),

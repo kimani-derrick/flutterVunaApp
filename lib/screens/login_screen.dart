@@ -7,6 +7,7 @@ import 'forgot_username_screen.dart';
 import 'forgot_password_screen.dart';
 import 'home_screen.dart';
 import 'main_screen.dart';
+import 'dart:convert';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -300,6 +301,9 @@ class _LoginScreenState extends State<LoginScreen> {
           throw Exception('No user data found in response');
         }
 
+        print('📦 User Data Response:');
+        print(json.encode(userData)); // Print full user data for debugging
+
         // Create user model
         final user = UserModel(
           id: userData['id'],
@@ -307,10 +311,12 @@ class _LoginScreenState extends State<LoginScreen> {
           displayName: userData['displayName'],
           emailAddress: userData['emailAddress'],
           mobileNo: userData['mobileNo'],
+          officeId: userData['officeId'],
         );
 
         print('💾 User data processed successfully');
-        print('🏠 Navigating to home screen');
+        print(
+            '🏠 Navigating to home screen with Office ID: ${userData['officeId']}');
 
         Navigator.pushReplacement(
           context,
