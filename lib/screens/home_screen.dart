@@ -12,6 +12,7 @@ import '../widgets/top_menu_bar.dart';
 import '../screens/mini_statement_screen.dart';
 import '../services/group_service.dart';
 import '../screens/group_transactions_screen.dart';
+import '../services/cache_service.dart';
 
 class HomeScreen extends StatefulWidget {
   final String? username;
@@ -34,8 +35,8 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Map<String, dynamic>> groupAccounts = [];
   bool isLoading = true;
   String? errorMessage;
-  Future<List<SavingsAccountModel>>? _savingsAccountsFuture;
-  late Future<List<Map<String, dynamic>>> _groupAccountsFuture;
+  Future<List<SavingsAccountModel>> _savingsAccountsFuture = Future.value([]);
+  Future<List<Map<String, dynamic>>> _groupAccountsFuture = Future.value([]);
   double totalBalance = 0.0;
   String? userName;
   int _selectedIndex = 0;
@@ -43,40 +44,113 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _refreshData();
+    _initializeData();
   }
 
-  Future<void> _refreshData() async {
+  Future<void> _initializeData() async {
     setState(() {
       isLoading = true;
-      _savingsAccountsFuture = fetchSavingsAccounts();
-      _groupAccountsFuture = fetchGroupAccounts();
     });
+    await _loadData();
+  }
 
+  Future<void> _loadData() async {
     try {
-      // Fetch and update savings accounts
-      final fetchedSavingsAccounts = await _savingsAccountsFuture ?? [];
-      final groups = await _groupAccountsFuture;
+      debugPrint('\n🔍 Loading Home Screen Data');
+      debugPrint('🔍 Checking cache for home screen data...');
+      // Try to get cached data first
+      final cachedSavings = await CacheService.getData('savings_accounts');
+      final cachedGroups = await CacheService.getData('group_accounts');
 
-      // Calculate total balance from savings accounts
-      double total = 0.0;
-      for (var account in fetchedSavingsAccounts) {
-        total += account.accountBalance ?? 0.0;
+      if (cachedSavings != null && cachedGroups != null) {
+        debugPrint('✅ Cache found for home screen!');
+        debugPrint('📊 Cache Stats:');
+        debugPrint('  📦 Savings Accounts: ${cachedSavings.length} items');
+        debugPrint('  👥 Group Accounts: ${cachedGroups.length} items');
+
+        setState(() {
+          savingsAccounts = (cachedSavings as List)
+              .map((e) => SavingsAccountModel.fromJson(e))
+              .toList();
+          groupAccounts = List<Map<String, dynamic>>.from(cachedGroups);
+          _calculateTotalBalance();
+          debugPrint('💰 Total Balance Calculated: $totalBalance');
+          isLoading = false;
+          // Update the futures with cached data
+          _savingsAccountsFuture = Future.value(savingsAccounts);
+          _groupAccountsFuture = Future.value(groupAccounts);
+        });
+        debugPrint('✨ Home screen data loaded from cache successfully');
+      } else {
+        debugPrint('⚠️ No cache found for home screen. Fetching fresh data...');
+        await _fetchFreshData();
       }
-
-      setState(() {
-        savingsAccounts = fetchedSavingsAccounts;
-        groupAccounts = groups;
-        totalBalance = total;
-        isLoading = false;
-      });
     } catch (e) {
-      debugPrint('Error calculating total balance: $e');
+      debugPrint('❌ Error loading home screen data: $e');
       setState(() {
-        isLoading = false;
         errorMessage = e.toString();
+        isLoading = false;
       });
     }
+  }
+
+  Future<void> _fetchFreshData() async {
+    try {
+      debugPrint('\n🌐 Fetching fresh data for home screen...');
+      final fetchedSavings = await fetchSavingsAccounts();
+      final fetchedGroups = await fetchGroupAccounts();
+
+      debugPrint('\n💾 Caching home screen data...');
+      // Cache the fresh data
+      await CacheService.setData(
+          'savings_accounts', fetchedSavings.map((e) => e.toJson()).toList());
+      await CacheService.setData('group_accounts', fetchedGroups);
+      debugPrint('✅ Home screen data cached successfully');
+      debugPrint('📊 Cached Data Stats:');
+      debugPrint('  📦 Savings Accounts: ${fetchedSavings.length} items');
+      debugPrint('  👥 Group Accounts: ${fetchedGroups.length} items');
+
+      if (!mounted) return;
+
+      setState(() {
+        savingsAccounts = fetchedSavings;
+        groupAccounts = fetchedGroups;
+        _calculateTotalBalance();
+        debugPrint('💰 Total Balance Calculated: $totalBalance');
+        isLoading = false;
+        errorMessage = null;
+        // Update the futures with fresh data
+        _savingsAccountsFuture = Future.value(fetchedSavings);
+        _groupAccountsFuture = Future.value(fetchedGroups);
+      });
+      debugPrint('✨ Home screen fresh data loaded successfully');
+    } catch (e) {
+      debugPrint('❌ Error fetching home screen data: $e');
+      if (!mounted) return;
+      setState(() {
+        errorMessage = e.toString();
+        isLoading = false;
+      });
+    }
+  }
+
+  void _calculateTotalBalance() {
+    double total = 0.0;
+    for (var account in savingsAccounts) {
+      total += account.accountBalance ?? 0.0;
+    }
+    totalBalance = total;
+    debugPrint('💰 Total Balance Updated: $totalBalance');
+  }
+
+  Future<void> _onRefresh() async {
+    debugPrint('\n🔄 Manual refresh triggered for home screen');
+    debugPrint('🗑️ Clearing home screen cache...');
+    // Clear cache when manually refreshing
+    await CacheService.removeItem('savings_accounts');
+    await CacheService.removeItem('group_accounts');
+    debugPrint('✅ Home screen cache cleared');
+    await _fetchFreshData();
   }
 
   @override
@@ -86,6 +160,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<List<SavingsAccountModel>> fetchSavingsAccounts() async {
     try {
+      debugPrint('\n🔍 Checking savings accounts cache...');
+      // Try to get cached data first
+      final cachedData = await CacheService.getData('savings_accounts');
+      if (cachedData != null) {
+        debugPrint('✅ Using cached savings accounts data');
+        return (cachedData as List)
+            .map((e) => SavingsAccountModel.fromJson(e))
+            .toList();
+      }
+
+      debugPrint('🌐 Fetching savings accounts from API...');
+      // If no cached data, fetch from API
       setState(() {
         isLoading = true;
         errorMessage = null;
@@ -95,21 +181,11 @@ class _HomeScreenState extends State<HomeScreen> {
       final password = widget.password;
       final clientId = widget.user?.id;
 
-      debugPrint('\n🔐 Savings Auth Details:');
-      debugPrint('Username: $username');
-      debugPrint('Password: [REDACTED]');
-      debugPrint('ClientId: $clientId');
-
       if (username == null || password == null || clientId == null) {
         throw Exception('Missing credentials or client ID');
       }
 
       final credentials = base64.encode(utf8.encode('$username:$password'));
-      debugPrint('\nSavings API Call:');
-      debugPrint(
-          'URL: https://api.vuna.io/fineract-provider/api/v1/self/clients/$clientId/accounts');
-      debugPrint('Authorization: Basic $credentials');
-
       final response = await http.get(
         Uri.parse(
             'https://api.vuna.io/fineract-provider/api/v1/self/clients/$clientId/accounts'),
@@ -120,22 +196,27 @@ class _HomeScreenState extends State<HomeScreen> {
         },
       );
 
-      debugPrint('Savings API Response: ${response.statusCode}');
-      debugPrint('Savings API Response Body: ${response.body}');
-
       if (response.statusCode == 200) {
+        debugPrint('✅ API call successful');
         final Map<String, dynamic> data = json.decode(response.body);
         final List<dynamic> savingsAccounts = data['savingsAccounts'] ?? [];
-
-        return savingsAccounts
+        final accounts = savingsAccounts
             .map((account) => SavingsAccountModel.fromJson(account))
             .toList();
+
+        debugPrint('💾 Caching savings accounts data...');
+        // Cache the fresh data
+        await CacheService.setData(
+            'savings_accounts', accounts.map((e) => e.toJson()).toList());
+        debugPrint('✅ Savings accounts cached successfully');
+
+        return accounts;
       } else {
         throw Exception(
             'Failed to load savings accounts: ${response.statusCode}');
       }
     } catch (e) {
-      debugPrint('Error fetching savings accounts: $e');
+      debugPrint('❌ Error in savings accounts operation: $e');
       setState(() {
         errorMessage = e.toString();
       });
@@ -740,79 +821,86 @@ class _HomeScreenState extends State<HomeScreen> {
                       );
                     }
 
-                    return ListView.builder(
-                      controller: controller,
-                      itemCount: accounts.length,
-                      itemBuilder: (context, index) {
-                        final account = accounts[index];
-                        return Card(
-                          margin: const EdgeInsets.only(bottom: 16),
-                          elevation: 4,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: InkWell(
-                            onTap: () {
-                              Navigator.pop(context); // Close bottom sheet
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => MiniStatementScreen(
-                                    accountId: account.id.toString(),
-                                    accountName: account.productName,
+                    return RefreshIndicator(
+                      onRefresh: () async {
+                        setState(() {
+                          _savingsAccountsFuture = fetchSavingsAccounts();
+                        });
+                      },
+                      child: ListView.builder(
+                        controller: controller,
+                        itemCount: accounts.length,
+                        itemBuilder: (context, index) {
+                          final account = accounts[index];
+                          return Card(
+                            margin: const EdgeInsets.only(bottom: 16),
+                            elevation: 4,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: InkWell(
+                              onTap: () {
+                                Navigator.pop(context); // Close bottom sheet
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => MiniStatementScreen(
+                                      accountId: account.id.toString(),
+                                      accountName: account.productName,
+                                    ),
                                   ),
+                                );
+                              },
+                              borderRadius: BorderRadius.circular(12),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      account.productName,
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      'Account No: ${account.accountNo}',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey[600],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          'Balance',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.grey[600],
+                                          ),
+                                        ),
+                                        Text(
+                                          'KES ${NumberFormat('#,##0.00').format(account.accountBalance)}',
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: Color(0xFF4C3FF7),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
-                              );
-                            },
-                            borderRadius: BorderRadius.circular(12),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    account.productName,
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    'Account No: ${account.accountNo}',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.grey[600],
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        'Balance',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          color: Colors.grey[600],
-                                        ),
-                                      ),
-                                      Text(
-                                        'KES ${NumberFormat('#,##0.00').format(account.accountBalance)}',
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                          color: Color(0xFF4C3FF7),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
                               ),
                             ),
-                          ),
-                        );
-                      },
+                          );
+                        },
+                      ),
                     );
                   },
                 ),
@@ -1268,188 +1356,184 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: _refreshData,
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TopMenuBar(
-                  title: 'Welcome back',
-                  subtitle: 'Member',
-                  userName: widget.user?.displayName ?? userName,
-                ),
-                if (isLoading)
-                  const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(24.0),
-                      child: CircularProgressIndicator(),
-                    ),
-                  )
-                else if (errorMessage != null)
-                  Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(24.0),
-                      child: Text(
-                        'Error: $errorMessage',
-                        style: const TextStyle(color: Colors.red),
-                      ),
-                    ),
-                  )
-                else
-                  Padding(
+      body: RefreshIndicator(
+        onRefresh: _onRefresh,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TopMenuBar(
+                title: 'Welcome back',
+                subtitle: 'Member',
+                userName: widget.user?.displayName ?? userName,
+              ),
+              if (isLoading)
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(24.0),
+                    child: CircularProgressIndicator(),
+                  ),
+                )
+              else if (errorMessage != null)
+                Center(
+                  child: Padding(
                     padding: const EdgeInsets.all(24.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildBalanceCard(totalBalance),
-                        const SizedBox(height: 24),
-                        Text(
-                          'Products',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey[800],
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        _buildProductSummaryCard(
-                          'Savings',
-                          NumberFormat.currency(locale: 'en_KE', symbol: 'KES ')
-                              .format(totalBalance),
-                          FontAwesomeIcons.piggyBank,
-                          count: savingsAccounts.length,
-                        ),
-                        const SizedBox(height: 8),
-                        _buildProductSummaryCard(
-                          'Loans',
-                          'Apply Now',
-                          FontAwesomeIcons.handHoldingDollar,
-                        ),
-                        const SizedBox(height: 8),
-                        _buildProductSummaryCard(
-                          'Share Capital',
-                          'View Details',
-                          FontAwesomeIcons.chartPie,
-                        ),
-                        const SizedBox(height: 8),
-                        Card(
-                          elevation: 2,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            side: BorderSide(
-                              color: const Color(0xFF424242).withOpacity(0.1),
-                              width: 1,
-                            ),
-                          ),
-                          child: InkWell(
-                            onTap: _showGroupAccounts,
-                            borderRadius: BorderRadius.circular(12),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(12),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFF5F5F5),
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: const Icon(
-                                      FontAwesomeIcons.peopleGroup,
-                                      color: Color(0xFF424242),
-                                      size: 24,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 16),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            const Text(
-                                              'Merry Go Round',
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w600,
-                                                color: Color(0xFF424242),
-                                              ),
-                                            ),
-                                            const SizedBox(width: 8),
-                                            Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                horizontal: 8,
-                                                vertical: 2,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                color: const Color(0xFF4C3FF7)
-                                                    .withOpacity(0.1),
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
-                                              ),
-                                              child: Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  const Icon(
-                                                    FontAwesomeIcons.layerGroup,
-                                                    size: 12,
-                                                    color: Color(0xFF4C3FF7),
-                                                  ),
-                                                  const SizedBox(width: 4),
-                                                  Text(
-                                                    '${groupAccounts.length} group${groupAccounts.length != 1 ? 's' : ''}',
-                                                    style: const TextStyle(
-                                                      fontSize: 12,
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                      color: Color(0xFF4C3FF7),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          NumberFormat.currency(
-                                            locale: 'en_KE',
-                                            symbol: 'KES ',
-                                          ).format(groupAccounts.fold<double>(
-                                            0,
-                                            (sum, group) =>
-                                                sum +
-                                                ((group['balance'] as num?)
-                                                        ?.toDouble() ??
-                                                    0.0),
-                                          )),
-                                          style: TextStyle(
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.w500,
-                                            color: const Color(0xFF424242)
-                                                .withOpacity(0.8),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                      ],
+                    child: Text(
+                      'Error: $errorMessage',
+                      style: const TextStyle(color: Colors.red),
                     ),
                   ),
-              ],
-            ),
+                )
+              else
+                Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildBalanceCard(totalBalance),
+                      const SizedBox(height: 24),
+                      Text(
+                        'Products',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey[800],
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      _buildProductSummaryCard(
+                        'Savings',
+                        NumberFormat.currency(locale: 'en_KE', symbol: 'KES ')
+                            .format(totalBalance),
+                        FontAwesomeIcons.piggyBank,
+                        count: savingsAccounts.length,
+                      ),
+                      const SizedBox(height: 8),
+                      _buildProductSummaryCard(
+                        'Loans',
+                        'Apply Now',
+                        FontAwesomeIcons.handHoldingDollar,
+                      ),
+                      const SizedBox(height: 8),
+                      _buildProductSummaryCard(
+                        'Share Capital',
+                        'View Details',
+                        FontAwesomeIcons.chartPie,
+                      ),
+                      const SizedBox(height: 8),
+                      Card(
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(
+                            color: const Color(0xFF424242).withOpacity(0.1),
+                            width: 1,
+                          ),
+                        ),
+                        child: InkWell(
+                          onTap: _showGroupAccounts,
+                          borderRadius: BorderRadius.circular(12),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFF5F5F5),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: const Icon(
+                                    FontAwesomeIcons.peopleGroup,
+                                    color: Color(0xFF424242),
+                                    size: 24,
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          const Text(
+                                            'Merry Go Round',
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                              color: Color(0xFF424242),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 2,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: const Color(0xFF4C3FF7)
+                                                  .withOpacity(0.1),
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                const Icon(
+                                                  FontAwesomeIcons.layerGroup,
+                                                  size: 12,
+                                                  color: Color(0xFF4C3FF7),
+                                                ),
+                                                const SizedBox(width: 4),
+                                                Text(
+                                                  '${groupAccounts.length} group${groupAccounts.length != 1 ? 's' : ''}',
+                                                  style: const TextStyle(
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: Color(0xFF4C3FF7),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        NumberFormat.currency(
+                                          locale: 'en_KE',
+                                          symbol: 'KES ',
+                                        ).format(groupAccounts.fold<double>(
+                                          0,
+                                          (sum, group) =>
+                                              sum +
+                                              ((group['balance'] as num?)
+                                                      ?.toDouble() ??
+                                                  0.0),
+                                        )),
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w500,
+                                          color: const Color(0xFF424242)
+                                              .withOpacity(0.8),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                    ],
+                  ),
+                ),
+            ],
           ),
         ),
       ),

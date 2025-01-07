@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../services/investment_service.dart';
 import '../models/user_model.dart';
 import '../widgets/top_menu_bar.dart';
+import '../services/cache_service.dart';
 
 class InvestScreen extends StatefulWidget {
   final String? username;
@@ -32,18 +33,38 @@ class _InvestScreenState extends State<InvestScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchSavingsProducts();
+    _initializeData();
   }
 
-  @override
-  void dispose() {
-    _investmentAmountController.dispose();
-    _investmentPeriodController.dispose();
-    _purposeController.dispose();
-    super.dispose();
+  Future<void> _initializeData() async {
+    setState(() {
+      _isLoading = true;
+    });
+    await _loadData();
   }
 
-  Future<void> _fetchSavingsProducts() async {
+  Future<void> _loadData() async {
+    try {
+      // Try to get cached data first
+      final cachedProducts = await CacheService.getData('savings_products');
+
+      if (cachedProducts != null) {
+        setState(() {
+          _savingsProducts = List<Map<String, dynamic>>.from(cachedProducts);
+          _isLoading = false;
+        });
+      } else {
+        await _fetchFreshData();
+      }
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _fetchFreshData() async {
     setState(() {
       _isLoading = true;
       _error = null;
@@ -51,20 +72,9 @@ class _InvestScreenState extends State<InvestScreen> {
 
     try {
       final products = await InvestmentService.getSavingsProducts();
-      print('\n🌟 ========== FETCHED PRODUCTS ==========');
-      print('Total products fetched: ${products.length}');
 
-      for (var product in products) {
-        print('''
-📦 Product Details:
-  - Name: ${product['name']}
-  - Description: ${product['description'] ?? 'No description'}
-  - Interest Rate: ${product['nominalAnnualInterestRate']}%
-  - Currency: ${product['currency']['displayLabel']}
-  - Account Rule: ${product['accountingRule']['value']}
-''');
-      }
-      print('======================================\n');
+      // Cache the fresh data
+      await CacheService.setData('savings_products', products);
 
       if (!mounted) return;
       setState(() {
@@ -72,13 +82,21 @@ class _InvestScreenState extends State<InvestScreen> {
         _isLoading = false;
       });
     } catch (e) {
-      print('❌ ERROR: Failed to fetch products: $e');
       if (!mounted) return;
       setState(() {
         _error = e.toString();
         _isLoading = false;
       });
     }
+  }
+
+  Future<void> _onRefresh() async {
+    debugPrint('\n🔄 Manual refresh triggered for investment screen');
+    debugPrint('🗑️ Clearing investment products cache...');
+    // Clear cache when manually refreshing
+    await CacheService.removeItem(InvestmentService.PRODUCTS_CACHE_KEY);
+    debugPrint('✅ Investment products cache cleared');
+    await _fetchFreshData();
   }
 
   void _showProductDetails(BuildContext context, String category,
@@ -599,123 +617,141 @@ class _InvestScreenState extends State<InvestScreen> {
     );
   }
 
+  Widget _buildCategoryCard(Map<String, dynamic> category, bool hasProducts) {
+    final products = _getProductsByCategory(category['title']);
+    return GestureDetector(
+      onTap: hasProducts
+          ? () => _showProductDetails(context, category['title'], products)
+          : null,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: category['color'].withOpacity(0.2),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Container(
+              height: 100,
+              decoration: BoxDecoration(
+                color: category['color'],
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(16),
+                ),
+              ),
+              child: Center(
+                child: Icon(
+                  category['icon'],
+                  color: Colors.white,
+                  size: 40,
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    category['title'],
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    category['description'],
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[600],
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                  ),
+                  if (products.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      '${products.length} product${products.length != 1 ? 's' : ''}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: category['color'].withOpacity(0.8),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _investmentAmountController.dispose();
+    _investmentPeriodController.dispose();
+    _purposeController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[100],
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const TopMenuBar(
-              title: 'Investments',
-              subtitle: 'Grow your wealth',
-            ),
-            if (_error != null)
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Text(
-                  'Error: $_error',
-                  style: const TextStyle(color: Colors.red),
-                ),
+      body: RefreshIndicator(
+        onRefresh: _onRefresh,
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const TopMenuBar(
+                title: 'Investments',
+                subtitle: 'Grow your wealth',
               ),
-            Expanded(
-              child: GridView.builder(
-                padding: const EdgeInsets.all(16),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 0.75,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
+              if (_error != null)
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Text(
+                    'Error: $_error',
+                    style: const TextStyle(color: Colors.red),
+                  ),
                 ),
-                itemCount: _categories.length,
-                itemBuilder: (context, index) {
-                  final category = _categories[index];
-                  final products = _getProductsByCategory(category['title']);
-                  final hasProducts = products.isNotEmpty;
-
-                  return GestureDetector(
-                    onTap: hasProducts
-                        ? () => _showProductDetails(
-                            context, category['title'], products)
-                        : null,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: category['color'].withOpacity(0.2),
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
+              Expanded(
+                child: _isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : GridView.builder(
+                        padding: const EdgeInsets.all(16),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          childAspectRatio: 0.75,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                        ),
+                        itemCount: _categories.length,
+                        itemBuilder: (context, index) {
+                          final category = _categories[index];
+                          final products =
+                              _getProductsByCategory(category['title']);
+                          final hasProducts = products.isNotEmpty;
+                          return _buildCategoryCard(category, hasProducts);
+                        },
                       ),
-                      child: Column(
-                        children: [
-                          Container(
-                            height: 100,
-                            decoration: BoxDecoration(
-                              color: category['color'],
-                              borderRadius: const BorderRadius.vertical(
-                                top: Radius.circular(16),
-                              ),
-                            ),
-                            child: Center(
-                              child: Icon(
-                                category['icon'],
-                                color: Colors.white,
-                                size: 40,
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  category['title'],
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  textAlign: TextAlign.center,
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  category['description'],
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey[600],
-                                  ),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  textAlign: TextAlign.center,
-                                ),
-                                if (products.isNotEmpty) ...[
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    '${products.length} product${products.length != 1 ? 's' : ''}',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: category['color'].withOpacity(0.8),
-                                    ),
-                                  ),
-                                ],
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

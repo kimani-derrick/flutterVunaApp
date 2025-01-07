@@ -42,14 +42,35 @@ class SavingsAccountModel {
       status: Status.fromJson(json['status'] as Map<String, dynamic>),
       currency: Currency.fromJson(json['currency'] as Map<String, dynamic>),
       accountBalance: (json['accountBalance'] as num?)?.toDouble() ?? 0.0,
-      accountType: AccountType.fromJson(json['accountType'] as Map<String, dynamic>),
+      accountType:
+          AccountType.fromJson(json['accountType'] as Map<String, dynamic>),
       timeline: Timeline.fromJson(json['timeline'] as Map<String, dynamic>),
       subStatus: SubStatus.fromJson(json['subStatus'] as Map<String, dynamic>),
       lastActiveTransactionDate: json['lastActiveTransactionDate'] != null
           ? List<int>.from(json['lastActiveTransactionDate'] as List)
           : null,
-      depositType: DepositType.fromJson(json['depositType'] as Map<String, dynamic>),
+      depositType:
+          DepositType.fromJson(json['depositType'] as Map<String, dynamic>),
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'accountNo': accountNo,
+      'externalId': externalId,
+      'productId': productId,
+      'productName': productName,
+      'shortProductName': shortProductName,
+      'status': status.toJson(),
+      'currency': currency.toJson(),
+      'accountBalance': accountBalance,
+      'accountType': accountType.toJson(),
+      'timeline': timeline.toJson(),
+      'subStatus': subStatus.toJson(),
+      'lastActiveTransactionDate': lastActiveTransactionDate,
+      'depositType': depositType.toJson(),
+    };
   }
 }
 
@@ -89,7 +110,8 @@ class Status {
       id: json['id'] as int?,
       code: json['code'] as String,
       value: json['value'] as String,
-      submittedAndPendingApproval: json['submittedAndPendingApproval'] as bool? ?? false,
+      submittedAndPendingApproval:
+          json['submittedAndPendingApproval'] as bool? ?? false,
       approved: json['approved'] as bool? ?? false,
       rejected: json['rejected'] as bool? ?? false,
       withdrawnByApplicant: json['withdrawnByApplicant'] as bool? ?? false,
@@ -100,6 +122,24 @@ class Status {
       transferOnHold: json['transferOnHold'] as bool? ?? false,
       matured: json['matured'] as bool? ?? false,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'code': code,
+      'value': value,
+      'submittedAndPendingApproval': submittedAndPendingApproval,
+      'approved': approved,
+      'rejected': rejected,
+      'withdrawnByApplicant': withdrawnByApplicant,
+      'active': active,
+      'closed': closed,
+      'prematureClosed': prematureClosed,
+      'transferInProgress': transferInProgress,
+      'transferOnHold': transferOnHold,
+      'matured': matured,
+    };
   }
 }
 
@@ -133,6 +173,18 @@ class Currency {
       displayLabel: json['displayLabel'] as String,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'code': code,
+      'name': name,
+      'decimalPlaces': decimalPlaces,
+      'inMultiplesOf': inMultiplesOf,
+      'displaySymbol': displaySymbol,
+      'nameCode': nameCode,
+      'displayLabel': displayLabel,
+    };
+  }
 }
 
 class AccountType {
@@ -152,6 +204,14 @@ class AccountType {
       code: json['code'] as String,
       value: json['value'] as String,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'code': code,
+      'value': value,
+    };
   }
 }
 
@@ -180,22 +240,36 @@ class Timeline {
 
   factory Timeline.fromJson(Map<String, dynamic> json) {
     return Timeline(
-      submittedOnDate: json['submittedOnDate'] != null 
+      submittedOnDate: json['submittedOnDate'] != null
           ? List<int>.from(json['submittedOnDate'] as List)
           : null,
       submittedByUsername: json['submittedByUsername'] as String,
       submittedByFirstname: json['submittedByFirstname'] as String,
       submittedByLastname: json['submittedByLastname'] as String,
-      approvedOnDate: json['approvedOnDate'] != null 
+      approvedOnDate: json['approvedOnDate'] != null
           ? List<int>.from(json['approvedOnDate'] as List)
           : null,
       approvedByUsername: json['approvedByUsername'] as String?,
       approvedByFirstname: json['approvedByFirstname'] as String?,
       approvedByLastname: json['approvedByLastname'] as String?,
-      activatedOnDate: json['activatedOnDate'] != null 
+      activatedOnDate: json['activatedOnDate'] != null
           ? List<int>.from(json['activatedOnDate'] as List)
           : null,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'submittedOnDate': submittedOnDate,
+      'submittedByUsername': submittedByUsername,
+      'submittedByFirstname': submittedByFirstname,
+      'submittedByLastname': submittedByLastname,
+      'approvedOnDate': approvedOnDate,
+      'approvedByUsername': approvedByUsername,
+      'approvedByFirstname': approvedByFirstname,
+      'approvedByLastname': approvedByLastname,
+      'activatedOnDate': activatedOnDate,
+    };
   }
 }
 
@@ -238,6 +312,21 @@ class SubStatus {
       blockDebit: json['blockDebit'] as bool? ?? false,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'code': code,
+      'value': value,
+      'none': none,
+      'inactive': inactive,
+      'dormant': dormant,
+      'escheat': escheat,
+      'block': block,
+      'blockCredit': blockCredit,
+      'blockDebit': blockDebit,
+    };
+  }
 }
 
 class DepositType {
@@ -257,5 +346,13 @@ class DepositType {
       code: json['code'] as String,
       value: json['value'] as String,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'code': code,
+      'value': value,
+    };
   }
 }

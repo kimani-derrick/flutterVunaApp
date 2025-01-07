@@ -1,6 +1,8 @@
 import 'dart:convert';
 import '../config/api_config.dart';
 import 'http_client.dart';
+import '../services/cache_service.dart';
+import 'package:flutter/foundation.dart';
 
 class InvestmentService {
   static final InvestmentService _instance = InvestmentService._internal();
@@ -8,6 +10,7 @@ class InvestmentService {
   InvestmentService._internal();
 
   static final HttpClient _httpClient = HttpClient();
+  static const String PRODUCTS_CACHE_KEY = 'investment_products';
 
   // Hardcoded API credentials (different from user login)
   static const String _apiUsername = 'mifos';
@@ -15,6 +18,15 @@ class InvestmentService {
 
   static Future<List<Map<String, dynamic>>> getSavingsProducts() async {
     try {
+      debugPrint('\n🔍 Checking investment products cache...');
+      // Try to get cached data first
+      final cachedProducts = await CacheService.getData(PRODUCTS_CACHE_KEY);
+      if (cachedProducts != null) {
+        debugPrint('✅ Using cached investment products');
+        return List<Map<String, dynamic>>.from(cachedProducts);
+      }
+
+      debugPrint('🌐 Fetching investment products from API...');
       // Initialize the HTTP client if not already initialized
       await _httpClient.init();
 
@@ -32,12 +44,19 @@ class InvestmentService {
         },
       );
 
-      print('Savings API Response: ${response.statusCode}');
-      print('Savings API Response Body: ${response.data}');
+      debugPrint('📡 API Response Status: ${response.statusCode}');
 
       if (response.statusCode == 200) {
         if (response.data is List) {
-          return List<Map<String, dynamic>>.from(response.data);
+          final products = List<Map<String, dynamic>>.from(response.data);
+          debugPrint('📦 Fetched ${products.length} investment products');
+
+          // Cache the products
+          debugPrint('💾 Caching investment products...');
+          await CacheService.setData(PRODUCTS_CACHE_KEY, products);
+          debugPrint('✅ Investment products cached successfully');
+
+          return products;
         } else {
           throw Exception(
               'Invalid response format: expected a list of products');
@@ -47,7 +66,7 @@ class InvestmentService {
             'Failed to load savings products: ${response.statusCode}');
       }
     } catch (e) {
-      print('❌ Detailed error: $e');
+      debugPrint('❌ Error in investment products operation: $e');
       throw Exception('Error fetching savings products: $e');
     }
   }

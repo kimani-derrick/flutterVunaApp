@@ -7,6 +7,7 @@ import 'forgot_username_screen.dart';
 import 'forgot_password_screen.dart';
 import 'main_screen.dart';
 import 'dart:convert';
+import '../services/cache_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -286,6 +287,12 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
+      debugPrint('\n🔐 Login initiated');
+      debugPrint('🗑️ Clearing all previous cache for fresh start...');
+      // Clear all cache when logging in
+      await CacheService.clearCache();
+      debugPrint('✅ Cache cleared successfully');
+
       final response = await _apiService.login(
         _emailController.text,
         _passwordController.text,
