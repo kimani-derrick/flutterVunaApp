@@ -716,9 +716,10 @@ class _InvestScreenState extends State<InvestScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const TopMenuBar(
+              TopMenuBar(
                 title: 'Investments',
                 subtitle: 'Grow your wealth',
+                userName: widget.user?.displayName,
               ),
               if (_error != null)
                 Padding(

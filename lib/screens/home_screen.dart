@@ -1164,9 +1164,11 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 // Top Menu Bar
                 TopMenuBar(
+                  title: 'Investments',
+                  subtitle: 'Grow your wealth',
                   userName: widget.user?.displayName,
-                  subtitle: 'User',
                 ),
+                const SizedBox(height: 16),
                 // Total Balance Card
                 _buildTotalBalanceCard(
                   context,
@@ -1364,10 +1366,11 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TopMenuBar(
-                title: 'Welcome back',
-                subtitle: 'Member',
-                userName: widget.user?.displayName ?? userName,
+                title: 'Investments',
+                subtitle: 'Grow your wealth',
+                userName: widget.user?.displayName,
               ),
+              const SizedBox(height: 16),
               if (isLoading)
                 const Center(
                   child: Padding(
@@ -1387,7 +1390,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 )
               else
                 Padding(
-                  padding: const EdgeInsets.all(24.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
