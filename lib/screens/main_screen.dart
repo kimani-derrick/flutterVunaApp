@@ -83,8 +83,8 @@ class _MainScreenState extends State<MainScreen> {
             ),
             child: BottomNavigationBar(
               items: [
-                _buildNavItem(FontAwesomeIcons.chartLine, 'Invest'),
-                _buildNavItem(FontAwesomeIcons.house, 'My Account'),
+                _buildNavItem(FontAwesomeIcons.home, 'Home'),
+                _buildNavItem(FontAwesomeIcons.wallet, 'My Account'),
                 _buildNavItem(FontAwesomeIcons.user, 'Profile'),
               ],
               currentIndex: _selectedIndex,
