@@ -609,7 +609,7 @@ class _HomeScreenState extends State<HomeScreen> {
         primaryColor = const Color(0xFF2E7D32);
         backgroundColor = const Color(0xFFE8F5E9);
         break;
-      case 'Loans':
+      case 'Advances':
         primaryColor = const Color(0xFF1565C0);
         backgroundColor = const Color(0xFFE3F2FD);
         break;
@@ -629,8 +629,8 @@ class _HomeScreenState extends State<HomeScreen> {
             case 'Savings':
               _showSavingsAccounts();
               break;
-            case 'Loans':
-              // Handle loans tap
+            case 'Advances':
+              // Handle advances tap
               break;
             case 'Share Capital':
               // Handle share capital tap
@@ -1204,7 +1204,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               const SizedBox(height: 8),
                               _buildProductSummaryCard(
-                                'Loans',
+                                'Advances',
                                 'Apply Now',
                                 FontAwesomeIcons.handHoldingDollar,
                               ),
@@ -1411,7 +1411,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       const SizedBox(height: 8),
                       _buildProductSummaryCard(
-                        'Loans',
+                        'Advances',
                         'Apply Now',
                         FontAwesomeIcons.handHoldingDollar,
                       ),

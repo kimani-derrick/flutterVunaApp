@@ -12,60 +12,10 @@ class MarketplaceScreen extends StatefulWidget {
 class _MarketplaceScreenState extends State<MarketplaceScreen> {
   final List<Map<String, dynamic>> _categories = [
     {
-      'title': 'Loans',
       'icon': FontAwesomeIcons.handHoldingDollar,
-      'color': const Color(0xFF4C3FF7),
-      'description': 'Flexible financing options for your needs',
-      'subcategories': [
-        {
-          'name': 'Mobile Phones',
-          'icon': FontAwesomeIcons.mobileScreen,
-          'description':
-              'Get instant loans to purchase the latest smartphones with flexible repayment terms',
-          'benefits': [
-            'Quick approval process',
-            'Affordable interest rates',
-            'Flexible repayment periods',
-            'No collateral required'
-          ]
-        },
-        {
-          'name': 'Bike Loans',
-          'icon': FontAwesomeIcons.motorcycle,
-          'description':
-              'Finance your motorcycle purchase with competitive rates and flexible terms',
-          'benefits': [
-            'Low down payment',
-            'Competitive interest rates',
-            'Quick processing',
-            'Insurance options available'
-          ]
-        },
-        {
-          'name': 'Emergency Loans',
-          'icon': FontAwesomeIcons.briefcaseMedical,
-          'description':
-              'Quick access to funds for unexpected expenses and emergencies',
-          'benefits': [
-            'Instant approval',
-            'No paperwork',
-            '24/7 availability',
-            'Flexible repayment options'
-          ]
-        },
-        {
-          'name': 'Repair Financing',
-          'icon': FontAwesomeIcons.screwdriverWrench,
-          'description':
-              'Cover your bike repair and maintenance costs with easy financing',
-          'benefits': [
-            'Cover all repair costs',
-            'Pay in installments',
-            'Quick processing',
-            'All repair shops accepted'
-          ]
-        }
-      ]
+      'color': Color(0xFF1565C0),
+      'title': 'Advances',
+      'description': 'Quick financial solutions for your needs',
     },
     {
       'title': 'Insurance',
@@ -445,6 +395,31 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
     },
   ];
 
+  final List<Map<String, dynamic>> _products = [
+    {
+      'name': 'Mobile Advance',
+      'description':
+          'Get instant advances to purchase the latest smartphones with flexible repayment terms',
+      'icon': FontAwesomeIcons.mobileScreen,
+      'color': Color(0xFF1565C0),
+      'category': 'Advances',
+    },
+    {
+      'name': 'Bike Advance',
+      'description': 'Get your dream bike with our flexible advance options',
+      'icon': FontAwesomeIcons.motorcycle,
+      'color': Color(0xFF1565C0),
+      'category': 'Advances',
+    },
+    {
+      'name': 'Emergency Advance',
+      'description': 'Quick financial support when you need it most',
+      'icon': FontAwesomeIcons.briefcaseMedical,
+      'color': Color(0xFF1565C0),
+      'category': 'Advances',
+    },
+  ];
+
   void _showSubcategoryDetails(BuildContext context,
       Map<String, dynamic> subcategory, Color categoryColor) {
     showModalBottomSheet(
@@ -801,7 +776,7 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
                   children: [
                     const Center(
                       child: Text(
-                        'VunaSacco',
+                        'Vuna',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 28,

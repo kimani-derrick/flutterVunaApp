@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/cache_service.dart';
-import 'login_screen.dart';
+import 'marketplace_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final UserModel? user;
@@ -103,9 +103,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     if (!mounted) return;
 
-    // Navigate to login screen
+    // Navigate to marketplace screen and remove all previous routes
     Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (context) => const LoginScreen()),
+      MaterialPageRoute(builder: (context) => const MarketplaceScreen()),
       (route) => false,
     );
   }

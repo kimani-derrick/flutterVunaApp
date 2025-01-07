@@ -480,7 +480,7 @@ class _InvestScreenState extends State<InvestScreen> {
 
   final List<Map<String, dynamic>> _categories = [
     {
-      'title': 'Loans',
+      'title': 'Advances',
       'icon': FontAwesomeIcons.handHoldingDollar,
       'color': const Color(0xFF4C3FF7),
       'description': 'Flexible financing options for your needs',
