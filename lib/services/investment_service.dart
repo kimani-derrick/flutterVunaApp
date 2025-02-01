@@ -3,6 +3,8 @@ import '../config/api_config.dart';
 import 'http_client.dart';
 import '../services/cache_service.dart';
 import 'package:flutter/foundation.dart';
+import 'package:intl/intl.dart';
+import 'package:dio/dio.dart';
 
 class InvestmentService {
   static final InvestmentService _instance = InvestmentService._internal();
@@ -130,6 +132,69 @@ class InvestmentService {
     } catch (e) {
       print('❌ Detailed error: $e');
       throw Exception('Error fetching transactions: $e');
+    }
+  }
+
+  static Future<Map<String, dynamic>> activateSavingsAccount(
+    int clientId,
+    int productId,
+  ) async {
+    try {
+      debugPrint('\n🔄 Activating savings account...');
+      await _httpClient.init();
+
+      final apiCredentials =
+          base64Encode(utf8.encode('$_apiUsername:$_apiPassword'));
+
+      final now = DateTime.now();
+      final dateFormat = DateFormat('dd MMMM yyyy');
+      final formattedDate = dateFormat.format(now);
+
+      final requestBody = {
+        'clientId': clientId,
+        'productId': productId,
+        'dateFormat': 'dd MMMM yyyy',
+        'locale': 'en',
+        'submittedOnDate': formattedDate,
+        'externalId': DateTime.now()
+            .millisecondsSinceEpoch
+            .toString(), // Unique external ID
+      };
+
+      debugPrint('📤 Request Body: $requestBody');
+
+      final response = await _httpClient.post(
+        ApiConfig.savingsAccountsEndpoint,
+        data: requestBody,
+        options: Options(headers: {
+          'Authorization': 'Basic $apiCredentials',
+          'Fineract-Platform-TenantId': 'default',
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        }),
+      );
+
+      debugPrint('📡 API Response Status: ${response.statusCode}');
+      debugPrint('📥 API Response Body: ${response.data}');
+
+      if (response.statusCode == 200) {
+        final responseData = Map<String, dynamic>.from(response.data);
+        debugPrint('''
+✅ Savings account activated successfully:
+   - Office ID: ${responseData['officeId']}
+   - Client ID: ${responseData['clientId']}
+   - Savings ID: ${responseData['savingsId']}
+   - Resource ID: ${responseData['resourceId']}
+   - GSIM ID: ${responseData['gsimId']}
+''');
+        return responseData;
+      } else {
+        throw Exception(
+            'Failed to activate savings account: ${response.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('❌ Error in savings account activation: $e');
+      throw Exception('Error activating savings account: $e');
     }
   }
 }

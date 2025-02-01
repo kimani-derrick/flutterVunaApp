@@ -218,8 +218,9 @@ class _InvestScreenState extends State<InvestScreen> {
                                   ),
                                 const SizedBox(height: 16),
                                 ElevatedButton(
-                                  onPressed: () =>
-                                      _showInvestmentForm(context, product),
+                                  onPressed: () => category == 'Savings'
+                                      ? _showActivationAlert(context, product)
+                                      : _showInvestmentForm(context, product),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFF4C3FF7),
                                     minimumSize:
@@ -228,9 +229,11 @@ class _InvestScreenState extends State<InvestScreen> {
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                   ),
-                                  child: const Text(
-                                    'Invest Now',
-                                    style: TextStyle(
+                                  child: Text(
+                                    category == 'Savings'
+                                        ? 'Activate'
+                                        : 'Invest Now',
+                                    style: const TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -433,6 +436,183 @@ class _InvestScreenState extends State<InvestScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  void _showActivationAlert(
+      BuildContext context, Map<String, dynamic> product) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Activate Savings Account'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Are you sure you want to activate a ${product['name']} savings account under your profile?',
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Product Details:',
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text('Name: ${product['name']}'),
+            if (product['description'] != null)
+              Text('Description: ${product['description']}'),
+            Text('Interest Rate: ${product['nominalAnnualInterestRate']}%'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(context); // Close dialog
+              try {
+                final clientId = widget.user?.id;
+                if (clientId == null) {
+                  throw Exception('Client ID not found');
+                }
+
+                // Show loading indicator
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Row(
+                      children: [
+                        SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        ),
+                        SizedBox(width: 16),
+                        Text('Sending activation request...'),
+                      ],
+                    ),
+                    duration: Duration(seconds: 1),
+                  ),
+                );
+
+                final result = await InvestmentService.activateSavingsAccount(
+                  clientId,
+                  product['id'],
+                );
+
+                if (!mounted) return;
+
+                // Show success notification
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: Row(
+                      children: [
+                        Icon(Icons.check_circle, color: Colors.green, size: 28),
+                        SizedBox(width: 8),
+                        Text('Activation Successful'),
+                      ],
+                    ),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                            'Your savings account has been activated successfully!'),
+                        SizedBox(height: 16),
+                        Text(
+                          'Account Details:',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(height: 8),
+                        Text('Product: ${product['name']}'),
+                        Text('Savings ID: ${result['savingsId']}'),
+                        Text('Resource ID: ${result['resourceId']}'),
+                        if (result['officeId'] != null)
+                          Text('Office ID: ${result['officeId']}'),
+                      ],
+                    ),
+                    actions: [
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          // Refresh the products
+                          _fetchFreshData();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF4C3FF7),
+                        ),
+                        child: const Text('OK'),
+                      ),
+                    ],
+                  ),
+                );
+              } catch (e) {
+                if (!mounted) return;
+
+                // Show error notification
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: Row(
+                      children: [
+                        Icon(Icons.error_outline, color: Colors.red, size: 28),
+                        SizedBox(width: 8),
+                        Text('Activation Failed'),
+                      ],
+                    ),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Failed to activate savings account.'),
+                        SizedBox(height: 8),
+                        Text(
+                          'Error Details:',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          e.toString(),
+                          style: TextStyle(color: Colors.red[700]),
+                        ),
+                      ],
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('Close'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          // Show activation dialog again
+                          _showActivationAlert(context, product);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF4C3FF7),
+                        ),
+                        child: const Text('Try Again'),
+                      ),
+                    ],
+                  ),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF4C3FF7),
+            ),
+            child: const Text('Activate'),
+          ),
+        ],
       ),
     );
   }
