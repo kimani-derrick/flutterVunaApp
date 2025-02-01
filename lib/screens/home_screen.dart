@@ -1257,7 +1257,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               Row(
                                                 children: [
                                                   const Text(
-                                                    'Merry Go Round',
+                                                    'Groups',
                                                     style: TextStyle(
                                                       fontSize: 16,
                                                       fontWeight:
@@ -1463,7 +1463,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       Row(
                                         children: [
                                           const Text(
-                                            'Merry Go Round',
+                                            'Groups',
                                             style: TextStyle(
                                               fontSize: 16,
                                               fontWeight: FontWeight.w600,

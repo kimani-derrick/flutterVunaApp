@@ -13,7 +13,7 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
   final List<Map<String, dynamic>> _categories = [
     {
       'icon': FontAwesomeIcons.handHoldingDollar,
-      'color': Color(0xFF1565C0),
+      'color': const Color(0xFF1565C0),
       'title': 'Advances',
       'description': 'Quick financial solutions for your needs',
     },
@@ -401,21 +401,21 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
       'description':
           'Get instant advances to purchase the latest smartphones with flexible repayment terms',
       'icon': FontAwesomeIcons.mobileScreen,
-      'color': Color(0xFF1565C0),
+      'color': const Color(0xFF1565C0),
       'category': 'Advances',
     },
     {
       'name': 'Bike Advance',
       'description': 'Get your dream bike with our flexible advance options',
       'icon': FontAwesomeIcons.motorcycle,
-      'color': Color(0xFF1565C0),
+      'color': const Color(0xFF1565C0),
       'category': 'Advances',
     },
     {
       'name': 'Emergency Advance',
       'description': 'Quick financial support when you need it most',
       'icon': FontAwesomeIcons.briefcaseMedical,
-      'color': Color(0xFF1565C0),
+      'color': const Color(0xFF1565C0),
       'category': 'Advances',
     },
   ];
