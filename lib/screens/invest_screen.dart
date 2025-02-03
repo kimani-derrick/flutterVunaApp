@@ -29,11 +29,18 @@ class _InvestScreenState extends State<InvestScreen> {
   final _investmentAmountController = TextEditingController();
   final _investmentPeriodController = TextEditingController();
   final _purposeController = TextEditingController();
+  late BuildContext _rootContext;
 
   @override
   void initState() {
     super.initState();
     _initializeData();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _rootContext = context;
   }
 
   Future<void> _initializeData() async {
@@ -65,12 +72,15 @@ class _InvestScreenState extends State<InvestScreen> {
   }
 
   Future<void> _fetchFreshData() async {
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
-
+    debugPrint('\n🔄 Starting _fetchFreshData...');
     try {
+      setState(() {
+        _isLoading = true;
+      });
+      debugPrint('⏳ Loading state set to true');
+
+      // Fetch your data here
+      debugPrint('📡 Fetching fresh data...');
       final products = await InvestmentService.getSavingsProducts();
 
       // Cache the fresh data
@@ -81,7 +91,9 @@ class _InvestScreenState extends State<InvestScreen> {
         _savingsProducts = products;
         _isLoading = false;
       });
+      debugPrint('✅ Fresh data loaded successfully');
     } catch (e) {
+      debugPrint('❌ Error in _fetchFreshData: $e');
       if (!mounted) return;
       setState(() {
         _error = e.toString();
@@ -444,7 +456,7 @@ class _InvestScreenState extends State<InvestScreen> {
       BuildContext context, Map<String, dynamic> product) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('Activate Savings Account'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -454,9 +466,9 @@ class _InvestScreenState extends State<InvestScreen> {
               'Are you sure you want to activate a ${product['name']} savings account under your profile?',
             ),
             const SizedBox(height: 16),
-            Text(
+            const Text(
               'Product Details:',
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -469,12 +481,11 @@ class _InvestScreenState extends State<InvestScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text('Cancel'),
           ),
           ElevatedButton(
             onPressed: () async {
-              Navigator.pop(context); // Close dialog
               try {
                 final clientId = widget.user?.id;
                 if (clientId == null) {
@@ -482,7 +493,7 @@ class _InvestScreenState extends State<InvestScreen> {
                 }
 
                 // Show loading indicator
-                ScaffoldMessenger.of(context).showSnackBar(
+                ScaffoldMessenger.of(_rootContext).showSnackBar(
                   const SnackBar(
                     content: Row(
                       children: [
@@ -510,101 +521,149 @@ class _InvestScreenState extends State<InvestScreen> {
 
                 if (!mounted) return;
 
-                // Show success notification
-                showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: Row(
-                      children: [
-                        Icon(Icons.check_circle, color: Colors.green, size: 28),
-                        SizedBox(width: 8),
-                        Text('Activation Successful'),
-                      ],
-                    ),
-                    content: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                            'Your savings account has been activated successfully!'),
-                        SizedBox(height: 16),
-                        Text(
-                          'Account Details:',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                debugPrint('\n🎯 Attempting to show success dialog...');
+
+                // Close the activation confirmation dialog
+                Navigator.pop(dialogContext);
+
+                // Use Future.delayed to ensure the first dialog is fully closed
+                Future.delayed(const Duration(milliseconds: 300), () {
+                  if (!mounted) return;
+
+                  // Show success notification
+                  showDialog(
+                    context: _rootContext,
+                    builder: (BuildContext successDialogContext) {
+                      debugPrint('🎨 Building success dialog UI...');
+                      return AlertDialog(
+                        title: Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.check_circle,
+                                  color: Colors.green, size: 24),
+                              const SizedBox(width: 8),
+                              const Flexible(
+                                child: Text(
+                                  'Activation Successful',
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                        SizedBox(height: 8),
-                        Text('Product: ${product['name']}'),
-                        Text('Savings ID: ${result['savingsId']}'),
-                        Text('Resource ID: ${result['resourceId']}'),
-                        if (result['officeId'] != null)
-                          Text('Office ID: ${result['officeId']}'),
-                      ],
-                    ),
-                    actions: [
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          // Refresh the products
-                          _fetchFreshData();
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF4C3FF7),
+                        content: const Text(
+                          'Your savings account has been activated successfully!',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.black87,
+                          ),
                         ),
-                        child: const Text('OK'),
-                      ),
-                    ],
-                  ),
-                );
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        contentPadding:
+                            const EdgeInsets.fromLTRB(24, 16, 24, 24),
+                        titlePadding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+                        actionsPadding:
+                            const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                        actions: [
+                          SizedBox(
+                            width: double.infinity,
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 8),
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  debugPrint(
+                                      '👆 Success dialog OK button pressed');
+                                  Navigator.pop(successDialogContext);
+                                  debugPrint('🔄 Refreshing products data...');
+                                  _fetchFreshData();
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF4C3FF7),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(24),
+                                  ),
+                                  minimumSize: const Size(double.infinity, 45),
+                                ),
+                                child: const Text(
+                                  'OK',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ).then((_) {
+                    debugPrint('✅ Success dialog closed');
+                  });
+                  debugPrint('📱 Success dialog display attempted');
+                });
               } catch (e) {
                 if (!mounted) return;
 
-                // Show error notification
-                showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: Row(
-                      children: [
-                        Icon(Icons.error_outline, color: Colors.red, size: 28),
-                        SizedBox(width: 8),
-                        Text('Activation Failed'),
+                // Close the activation confirmation dialog
+                Navigator.pop(dialogContext);
+
+                // Show error notification with a slight delay
+                Future.delayed(const Duration(milliseconds: 300), () {
+                  if (!mounted) return;
+
+                  showDialog(
+                    context: _rootContext,
+                    builder: (BuildContext errorDialogContext) => AlertDialog(
+                      title: const Row(
+                        children: [
+                          Icon(Icons.error_outline,
+                              color: Colors.red, size: 28),
+                          SizedBox(width: 8),
+                          Text('Activation Failed'),
+                        ],
+                      ),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Failed to activate savings account.'),
+                          const SizedBox(height: 8),
+                          const Text(
+                            'Error Details:',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            e.toString(),
+                            style: TextStyle(color: Colors.red[700]),
+                          ),
+                        ],
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(errorDialogContext),
+                          child: const Text('Close'),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(errorDialogContext);
+                            // Show activation dialog again
+                            _showActivationAlert(_rootContext, product);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF4C3FF7),
+                          ),
+                          child: const Text('Try Again'),
+                        ),
                       ],
                     ),
-                    content: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Failed to activate savings account.'),
-                        SizedBox(height: 8),
-                        Text(
-                          'Error Details:',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          e.toString(),
-                          style: TextStyle(color: Colors.red[700]),
-                        ),
-                      ],
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text('Close'),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          // Show activation dialog again
-                          _showActivationAlert(context, product);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF4C3FF7),
-                        ),
-                        child: const Text('Try Again'),
-                      ),
-                    ],
-                  ),
-                );
+                  );
+                });
               }
             },
             style: ElevatedButton.styleFrom(
