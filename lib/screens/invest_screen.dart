@@ -521,6 +521,24 @@ class _InvestScreenState extends State<InvestScreen> {
 
                 if (!mounted) return;
 
+                // Approve the savings account
+                debugPrint('\n🔄 Starting approval process...');
+                final approvalResult =
+                    await InvestmentService.approveSavingsAccount(
+                  result['savingsId'],
+                );
+
+                if (!mounted) return;
+
+                // Activate the approved savings account
+                debugPrint('\n🔄 Starting activation process...');
+                final activationResult =
+                    await InvestmentService.activateApprovedSavingsAccount(
+                  result['savingsId'],
+                );
+
+                if (!mounted) return;
+
                 debugPrint('\n🎯 Attempting to show success dialog...');
 
                 // Close the activation confirmation dialog
@@ -569,31 +587,29 @@ class _InvestScreenState extends State<InvestScreen> {
                         actionsPadding:
                             const EdgeInsets.fromLTRB(24, 0, 24, 24),
                         actions: [
-                          SizedBox(
+                          Container(
                             width: double.infinity,
-                            child: Padding(
-                              padding: const EdgeInsets.only(top: 8),
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  debugPrint(
-                                      '👆 Success dialog OK button pressed');
-                                  Navigator.pop(successDialogContext);
-                                  debugPrint('🔄 Refreshing products data...');
-                                  _fetchFreshData();
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF4C3FF7),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(24),
-                                  ),
-                                  minimumSize: const Size(double.infinity, 45),
+                            padding: const EdgeInsets.only(top: 8),
+                            child: ElevatedButton(
+                              onPressed: () {
+                                debugPrint(
+                                    '👆 Success dialog OK button pressed');
+                                Navigator.pop(successDialogContext);
+                                debugPrint('🔄 Refreshing products data...');
+                                _fetchFreshData();
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF4C3FF7),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(24),
                                 ),
-                                child: const Text(
-                                  'OK',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                  ),
+                                minimumSize: const Size(double.infinity, 45),
+                              ),
+                              child: const Text(
+                                'OK',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ),

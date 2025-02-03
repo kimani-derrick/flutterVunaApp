@@ -197,4 +197,104 @@ class InvestmentService {
       throw Exception('Error activating savings account: $e');
     }
   }
+
+  static Future<Map<String, dynamic>> approveSavingsAccount(
+    int savingsId,
+  ) async {
+    try {
+      debugPrint('\n🔄 Approving savings account...');
+      await _httpClient.init();
+
+      final apiCredentials =
+          base64Encode(utf8.encode('$_apiUsername:$_apiPassword'));
+
+      final now = DateTime.now();
+      final dateFormat = DateFormat('dd MMMM yyyy');
+      final formattedDate = dateFormat.format(now);
+
+      final requestBody = {
+        'locale': 'en',
+        'dateFormat': 'dd MMMM yyyy',
+        'approvedOnDate': formattedDate,
+      };
+
+      debugPrint('📤 Approval Request Body: $requestBody');
+
+      final response = await _httpClient.post(
+        '${ApiConfig.savingsAccountsEndpoint}/$savingsId?command=approve',
+        data: requestBody,
+        options: Options(headers: {
+          'Authorization': 'Basic $apiCredentials',
+          'Fineract-Platform-TenantId': 'default',
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        }),
+      );
+
+      debugPrint('📡 Approval API Response Status: ${response.statusCode}');
+      debugPrint('📥 Approval API Response Body: ${response.data}');
+
+      if (response.statusCode == 200) {
+        final responseData = Map<String, dynamic>.from(response.data);
+        debugPrint('✅ Savings account approved successfully');
+        return responseData;
+      } else {
+        throw Exception(
+            'Failed to approve savings account: ${response.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('❌ Error in savings account approval: $e');
+      throw Exception('Error approving savings account: $e');
+    }
+  }
+
+  static Future<Map<String, dynamic>> activateApprovedSavingsAccount(
+    int savingsId,
+  ) async {
+    try {
+      debugPrint('\n🔄 Activating approved savings account...');
+      await _httpClient.init();
+
+      final apiCredentials =
+          base64Encode(utf8.encode('$_apiUsername:$_apiPassword'));
+
+      final now = DateTime.now();
+      final dateFormat = DateFormat('dd MMMM yyyy');
+      final formattedDate = dateFormat.format(now);
+
+      final requestBody = {
+        'locale': 'en',
+        'dateFormat': 'dd MMMM yyyy',
+        'activatedOnDate': formattedDate,
+      };
+
+      debugPrint('📤 Activation Request Body: $requestBody');
+
+      final response = await _httpClient.post(
+        '${ApiConfig.savingsAccountsEndpoint}/$savingsId?command=activate',
+        data: requestBody,
+        options: Options(headers: {
+          'Authorization': 'Basic $apiCredentials',
+          'Fineract-Platform-TenantId': 'default',
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        }),
+      );
+
+      debugPrint('📡 Activation API Response Status: ${response.statusCode}');
+      debugPrint('📥 Activation API Response Body: ${response.data}');
+
+      if (response.statusCode == 200) {
+        final responseData = Map<String, dynamic>.from(response.data);
+        debugPrint('✅ Savings account activated successfully');
+        return responseData;
+      } else {
+        throw Exception(
+            'Failed to activate savings account: ${response.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('❌ Error in savings account activation: $e');
+      throw Exception('Error activating savings account: $e');
+    }
+  }
 }
