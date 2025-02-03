@@ -1,21 +1,21 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import '../config/api_config.dart';
 
 class OfficeService {
   static const String baseUrl = 'https://api.vuna.io/fineract-provider/api/v1';
   static const String appUsername = 'mifos';
   static const String appPassword = 'password';
 
-  static Future<List<Map<String, dynamic>>> getAllOffices() async {
+  static Future<List<Map<String, dynamic>>> getAllOffices(
+    String username,
+    String password,
+  ) async {
+    final url = '${ApiConfig.baseUrl}/offices';
+    final credentials = ApiConfig.getBasicAuth(username, password);
+
     try {
-      final credentials =
-          base64.encode(utf8.encode('$appUsername:$appPassword'));
-      final url = '$baseUrl/offices';
-
-      debugPrint('\n🔍 Fetching all offices...');
-      debugPrint('URL: $url');
-
       final response = await http.get(
         Uri.parse(url),
         headers: {
@@ -26,25 +26,43 @@ class OfficeService {
       );
 
       if (response.statusCode == 200) {
-        final List<dynamic> offices = json.decode(response.body);
-        debugPrint('✅ Successfully fetched ${offices.length} offices');
-
-        // Sort offices by hierarchy to maintain proper order
-        final List<Map<String, dynamic>> sortedOffices =
-            offices.cast<Map<String, dynamic>>()
-              ..sort((a, b) {
-                final aHierarchy = a['hierarchy'] as String? ?? '';
-                final bHierarchy = b['hierarchy'] as String? ?? '';
-                return aHierarchy.compareTo(bHierarchy);
-              });
-
-        return sortedOffices;
+        final List<dynamic> officesJson = json.decode(response.body);
+        return officesJson.cast<Map<String, dynamic>>();
       } else {
-        throw Exception('Failed to load offices: ${response.statusCode}');
+        throw Exception('Failed to fetch offices: ${response.statusCode}');
       }
     } catch (e) {
-      debugPrint('❌ Error fetching offices: $e');
-      rethrow;
+      throw Exception('Error fetching offices: $e');
+    }
+  }
+
+  static Future<Map<String, dynamic>> getOfficeDetails(
+    String username,
+    String password,
+    String officeId,
+  ) async {
+    final url = '${ApiConfig.baseUrl}/offices/$officeId';
+    final credentials = ApiConfig.getBasicAuth(username, password);
+
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {
+          'accept': 'application/json',
+          'Authorization': 'Basic $credentials',
+          'fineract-platform-tenantid': 'default',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+        return data;
+      } else {
+        throw Exception(
+            'Failed to fetch office details: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error fetching office details: $e');
     }
   }
 

@@ -1,8 +1,11 @@
 import 'env_config.dart';
+import 'dart:convert';
 
 class ApiConfig {
-  static String get baseUrl => EnvConfig.apiBaseUrl;
-  static String get tenantId => EnvConfig.tenantId;
+  static const String baseUrl = 'https://api.vuna.io/fineract-provider/api/v1';
+  static const String defaultUsername = 'mifos';
+  static const String defaultPassword = 'password';
+  static const String tenantId = 'default';
 
   // API Endpoints
   static String get authEndpoint => '/self/clients';
@@ -35,4 +38,17 @@ class ApiConfig {
 
   // Rate Limiting
   static const int maxRequestsPerMinute = 60;
+
+  static String getBasicAuth(String username, String password) {
+    return base64.encode(utf8.encode('$username:$password'));
+  }
+
+  static Map<String, String> getHeaders(String username, String password) {
+    return {
+      'accept': 'application/json',
+      'content-type': 'application/json',
+      'Authorization': 'Basic ${getBasicAuth(username, password)}',
+      'fineract-platform-tenantid': tenantId,
+    };
+  }
 }
