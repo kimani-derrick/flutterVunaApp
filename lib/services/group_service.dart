@@ -160,4 +160,36 @@ class GroupService {
       rethrow;
     }
   }
+
+  static Future<Map<String, dynamic>> getGroupMembers(
+      String username, String password, String groupId) async {
+    try {
+      final credentials =
+          base64.encode(utf8.encode('$appUsername:$appPassword'));
+      final url = '$baseUrl/groups/$groupId?associations=clientMembers';
+
+      debugPrint('\n🔍 Fetching group members...');
+      debugPrint('URL: $url');
+
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {
+          'accept': 'application/json',
+          'Authorization': 'Basic $credentials',
+          'fineract-platform-tenantid': 'default',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        debugPrint('✅ Successfully fetched group members');
+        return data;
+      } else {
+        throw Exception('Failed to load group members: ${response.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('❌ Error fetching group members: $e');
+      rethrow;
+    }
+  }
 }

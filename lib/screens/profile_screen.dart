@@ -13,6 +13,15 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  String? _selectedOffice;
+  // Dummy office data - in real app, this would come from an API
+  final List<Map<String, dynamic>> _offices = [
+    {'id': 1, 'name': 'Head Office - Nairobi'},
+    {'id': 2, 'name': 'Mombasa Branch'},
+    {'id': 3, 'name': 'Kisumu Branch'},
+    {'id': 4, 'name': 'Nakuru Branch'},
+  ];
+
   @override
   Widget build(BuildContext context) {
     if (widget.user == null) {
@@ -69,6 +78,83 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Icons.email, 'Email', widget.user!.emailAddress!),
               if (widget.user!.mobileNo != null)
                 _buildInfoItem(Icons.phone, 'Phone', widget.user!.mobileNo!),
+              _buildInfoItem(Icons.business, 'Office ID',
+                  widget.user!.officeId.toString()),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _buildSection(
+            'Office Transfer Request',
+            [
+              const Text(
+                'Select the office you would like to transfer to:',
+                style: TextStyle(fontSize: 14, color: Colors.grey),
+              ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                value: _selectedOffice,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                ),
+                hint: const Text('Select Target Office'),
+                items: _offices
+                    .where((office) => office['id'] != widget.user!.officeId)
+                    .map((office) => DropdownMenuItem(
+                          value: office['id'].toString(),
+                          child: Text(office['name']),
+                        ))
+                    .toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedOffice = value;
+                  });
+                },
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _selectedOffice == null
+                    ? null
+                    : () {
+                        // Show confirmation dialog
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('Confirm Transfer Request'),
+                            content: Text(
+                                'Are you sure you want to request transfer to ${_offices.firstWhere((office) => office['id'].toString() == _selectedOffice)['name']}?'),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text('Cancel'),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  // TODO: Implement actual transfer request
+                                  Navigator.pop(context);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                          'Transfer request submitted successfully'),
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
+                                  setState(() {
+                                    _selectedOffice = null;
+                                  });
+                                },
+                                child: const Text('Confirm'),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 45),
+                ),
+                child: const Text('Submit Transfer Request'),
+              ),
             ],
           ),
           const SizedBox(height: 16),
@@ -78,13 +164,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ElevatedButton(
                 onPressed: () => _logout(context),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
+                  backgroundColor: Colors.red[400],
                   foregroundColor: Colors.white,
+                  minimumSize: const Size(double.infinity, 45),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  elevation: 0,
                 ),
-                child: const Text('Logout'),
+                child: const Text(
+                  'Logout',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
               ),
+              const SizedBox(height: 16),
             ],
           ),
+          const SizedBox(height: 32),
         ],
       ),
     );
