@@ -16,7 +16,7 @@ class ApiService {
 
   Future<Map<String, dynamic>> login(String username, String password) async {
     try {
-      debugPrint('🔐 Attempting login for user: $username');
+      // debugPrint('🔐 Attempting login for user: $username');
 
       // Store credentials securely
       await _credentialsManager.storeCredentials(username, password);
@@ -28,40 +28,39 @@ class ApiService {
         'fineract-platform-tenantid': ApiConfig.tenantId,
       };
 
-      debugPrint('🌐 Making request to: ${ApiConfig.authUrl}');
+      // debugPrint('🌐 Making request to: ${ApiConfig.authUrl}');
       final response = await _httpClient.get(
         ApiConfig.authEndpoint,
         headers: headers,
       );
 
-      debugPrint('📡 API Response Status Code: ${response.statusCode}');
-      debugPrint('📦 API Response Body: ${response.data}');
+      // debugPrint('📡 API Response Status Code: ${response.statusCode}');
+      // debugPrint('📦 API Response Body: ${response.data}');
 
       if (response.statusCode == 200) {
         final data = response.data;
         if (data['totalFilteredRecords'] > 0 && data['pageItems'].isNotEmpty) {
-          debugPrint(
-              '✅ Login successful for user: ${data['pageItems'][0]['displayName']}');
+          // debugPrint('✅ Login successful for user: ${data['pageItems'][0]['displayName']}');
           return {
             'success': true,
             'userData': data['pageItems'][0],
           };
         } else {
-          debugPrint('⚠️ No user data found in response');
+          // debugPrint('⚠️ No user data found in response');
           return {
             'success': false,
             'error': 'Invalid credentials',
           };
         }
       } else {
-        debugPrint('❌ Login failed with status code: ${response.statusCode}');
+        // debugPrint('❌ Login failed with status code: ${response.statusCode}');
         return {
           'success': false,
           'error': 'Authentication failed',
         };
       }
     } catch (e) {
-      debugPrint('🔥 Error during login: $e');
+      // debugPrint('🔥 Error during login: $e');
       String errorMessage = 'Network error occurred';
       if (e.toString().contains('SocketException')) {
         errorMessage =
@@ -94,9 +93,8 @@ class ApiService {
     String? middleName,
   }) async {
     try {
-      debugPrint('\n🚀 Starting signup process...');
-      debugPrint(
-          '📋 Using Office ID: $officeId (${officeId == 1 ? 'Default from app auth' : 'Custom'})');
+      // debugPrint('\n🚀 Starting signup process...');
+      // debugPrint('📋 Using Office ID: $officeId (${officeId == 1 ? 'Default from app auth' : 'Custom'})');
 
       // Initialize HTTP client
       await _httpClient.init();
@@ -104,7 +102,7 @@ class ApiService {
       // Generate auth token by encoding the actual credentials
       final credentials = utf8.encode('mifos:password');
       final authToken = base64.encode(credentials);
-      debugPrint('\n🔐 Generated auth token from credentials (not hardcoded)');
+      // debugPrint('\n🔐 Generated auth token from credentials (not hardcoded)');
 
       final headers = {
         'Authorization': 'Basic $authToken',
@@ -113,11 +111,11 @@ class ApiService {
         'Accept': 'application/json',
       };
 
-      debugPrint('\n📝 API Headers:');
-      debugPrint(const JsonEncoder.withIndent('  ').convert(headers));
+      // debugPrint('\n📝 API Headers:');
+      // debugPrint(const JsonEncoder.withIndent('  ').convert(headers));
 
       // STEP 1: Create Client
-      debugPrint('\n👤 STEP 1: Creating client...');
+      // debugPrint('\n👤 STEP 1: Creating client...');
 
       final now = DateTime.now();
       final activationDate = DateFormat('dd MMMM yyyy').format(now);
@@ -150,8 +148,8 @@ class ApiService {
         ],
       };
 
-      debugPrint('\n📦 Client Creation Payload:');
-      debugPrint(const JsonEncoder.withIndent('  ').convert(clientData));
+      // debugPrint('\n📦 Client Creation Payload:');
+      // debugPrint(const JsonEncoder.withIndent('  ').convert(clientData));
 
       final Response clientResponse = await _httpClient.post(
         ApiConfig.clientsEndpoint,
@@ -159,10 +157,9 @@ class ApiService {
         options: Options(headers: headers),
       );
 
-      debugPrint('\n📡 Client API Response:');
-      debugPrint('Status Code: ${clientResponse.statusCode}');
-      debugPrint(
-          'Response Body: ${const JsonEncoder.withIndent('  ').convert(clientResponse.data)}');
+      // debugPrint('\n📡 Client API Response:');
+      // debugPrint('Status Code: ${clientResponse.statusCode}');
+      // debugPrint('Response Body: ${const JsonEncoder.withIndent('  ').convert(clientResponse.data)}');
 
       if (clientResponse.statusCode != 200) {
         throw Exception('Failed to create client: ${clientResponse.data}');
@@ -173,10 +170,10 @@ class ApiService {
         throw Exception('Client creation successful but no clientId returned');
       }
 
-      debugPrint('\n✅ Client created successfully with ID: $clientId');
+      // debugPrint('\n✅ Client created successfully with ID: $clientId');
 
       // STEP 2: Create User with the obtained clientId
-      debugPrint('\n👥 STEP 2: Creating user for client $clientId...');
+      // debugPrint('\n👥 STEP 2: Creating user for client $clientId...');
 
       final userData = {
         'clients': [clientId],
@@ -193,8 +190,8 @@ class ApiService {
         'username': username
       };
 
-      debugPrint('\n📦 User Creation Payload:');
-      debugPrint(const JsonEncoder.withIndent('  ').convert(userData));
+      // debugPrint('\n📦 User Creation Payload:');
+      // debugPrint(const JsonEncoder.withIndent('  ').convert(userData));
 
       final Response userResponse = await _httpClient.post(
         ApiConfig.usersEndpoint,
@@ -202,18 +199,17 @@ class ApiService {
         options: Options(headers: headers),
       );
 
-      debugPrint('\n📡 User API Response:');
-      debugPrint('Status Code: ${userResponse.statusCode}');
-      debugPrint(
-          'Response Body: ${const JsonEncoder.withIndent('  ').convert(userResponse.data)}');
+      // debugPrint('\n📡 User API Response:');
+      // debugPrint('Status Code: ${userResponse.statusCode}');
+      // debugPrint('Response Body: ${const JsonEncoder.withIndent('  ').convert(userResponse.data)}');
 
       if (userResponse.statusCode != 200) {
         throw Exception('Failed to create user: ${userResponse.data}');
       }
 
       final userId = userResponse.data['resourceId'];
-      debugPrint('\n✅ User created successfully with ID: $userId');
-      debugPrint('\n🎉 Complete signup process successful!\n');
+      // debugPrint('\n✅ User created successfully with ID: $userId');
+      // debugPrint('\n🎉 Complete signup process successful!\n');
 
       return {
         'success': true,
@@ -222,7 +218,7 @@ class ApiService {
         'message': 'Account created successfully'
       };
     } catch (e) {
-      debugPrint('\n❌ Error during signup process: $e');
+      // debugPrint('\n❌ Error during signup process: $e');
       throw Exception('Signup failed: $e');
     }
   }
