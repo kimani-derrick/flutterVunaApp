@@ -24,6 +24,12 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
+  final List<String> _titles = [
+    'Investments',
+    'My Account',
+    'Profile',
+  ];
+
   late final List<Widget> _screens = [
     InvestScreen(
       user: widget.user,
@@ -83,7 +89,7 @@ class _MainScreenState extends State<MainScreen> {
             ),
             child: BottomNavigationBar(
               items: [
-                _buildNavItem(FontAwesomeIcons.home, 'Home'),
+                _buildNavItem(FontAwesomeIcons.home, 'Investments'),
                 _buildNavItem(FontAwesomeIcons.wallet, 'My Account'),
                 _buildNavItem(FontAwesomeIcons.user, 'Profile'),
               ],

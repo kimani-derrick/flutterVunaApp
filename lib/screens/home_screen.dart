@@ -1316,8 +1316,8 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 // Top Menu Bar
                 TopMenuBar(
-                  title: 'Investments',
-                  subtitle: 'Grow your wealth',
+                  title: 'My Account',
+                  subtitle: 'Manage your finances',
                   userName: widget.user?.displayName,
                 ),
                 const SizedBox(height: 16),
@@ -1518,8 +1518,8 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TopMenuBar(
-                title: 'Investments',
-                subtitle: 'Grow your wealth',
+                title: 'My Account',
+                subtitle: 'Manage your finances',
                 userName: widget.user?.displayName,
               ),
               const SizedBox(height: 16),

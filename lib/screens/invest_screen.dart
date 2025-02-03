@@ -973,7 +973,7 @@ class _InvestScreenState extends State<InvestScreen> {
             children: [
               TopMenuBar(
                 title: 'Investments',
-                subtitle: 'Grow your wealth',
+                subtitle: 'Explore opportunities',
                 userName: widget.user?.displayName,
               ),
               if (_error != null)
