@@ -105,8 +105,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         'note': '',
         'dateFormat': 'dd MMMM yyyy',
         'locale': 'en',
-        'transferDate': DateFormat('dd MMMM yyyy')
-            .format(DateTime.now().add(const Duration(days: 1))),
+        'transferDate': DateFormat('dd MMMM yyyy').format(DateTime.now()),
       };
       debugPrint(
           'Payload: ${const JsonEncoder.withIndent('  ').convert(proposePayload)}');
