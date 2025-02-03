@@ -95,6 +95,8 @@ class ApiService {
   }) async {
     try {
       debugPrint('\n🚀 Starting signup process...');
+      debugPrint(
+          '📋 Using Office ID: $officeId (${officeId == 1 ? 'Default from app auth' : 'Custom'})');
 
       // Initialize HTTP client
       await _httpClient.init();

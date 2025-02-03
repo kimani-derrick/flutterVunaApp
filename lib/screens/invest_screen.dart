@@ -554,15 +554,15 @@ class _InvestScreenState extends State<InvestScreen> {
                     builder: (BuildContext successDialogContext) {
                       debugPrint('🎨 Building success dialog UI...');
                       return AlertDialog(
-                        title: Padding(
-                          padding: const EdgeInsets.only(bottom: 8.0),
+                        title: const Padding(
+                          padding: EdgeInsets.only(bottom: 8.0),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.check_circle,
+                              Icon(Icons.check_circle,
                                   color: Colors.green, size: 24),
-                              const SizedBox(width: 8),
-                              const Flexible(
+                              SizedBox(width: 8),
+                              Flexible(
                                 child: Text(
                                   'Activation Successful',
                                   style: TextStyle(fontSize: 16),

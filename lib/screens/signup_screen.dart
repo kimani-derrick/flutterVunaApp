@@ -26,6 +26,15 @@ class _SignupScreenState extends State<SignupScreen> {
   String? _errorMessage;
   bool _showPassword = false;
   bool _showConfirmPassword = false;
+  bool _useCustomSaccoId = false;
+  int _defaultOfficeId = 1; // Default office ID from app auth payload
+
+  @override
+  void initState() {
+    super.initState();
+    // Set the default office ID in the controller
+    _officeIdController.text = _defaultOfficeId.toString();
+  }
 
   @override
   void dispose() {
@@ -53,7 +62,10 @@ class _SignupScreenState extends State<SignupScreen> {
     });
 
     try {
-      final officeId = int.tryParse(_officeIdController.text.trim());
+      final officeId = _useCustomSaccoId
+          ? int.tryParse(_officeIdController.text.trim())
+          : _defaultOfficeId;
+
       if (officeId == null) {
         throw Exception('Invalid office ID');
       }
@@ -171,21 +183,87 @@ class _SignupScreenState extends State<SignupScreen> {
                     return null;
                   },
                 ),
-                _buildTextField(
-                  controller: _officeIdController,
-                  hint: 'Sacco ID',
-                  icon: Icons.business,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Office ID is required';
-                    }
-                    if (int.tryParse(value) == null) {
-                      return 'Please enter a valid Office ID';
-                    }
-                    return null;
-                  },
+                Container(
+                  margin: const EdgeInsets.only(bottom: 16),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.business, color: Colors.grey),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  _useCustomSaccoId
+                                      ? 'Join Cooperative'
+                                      : 'Explore Marketplace',
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                                Switch(
+                                  value: _useCustomSaccoId,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _useCustomSaccoId = value;
+                                      if (!value) {
+                                        // Set default ID when switching to Explore Marketplace
+                                        _officeIdController.text =
+                                            _defaultOfficeId.toString();
+                                      } else {
+                                        // Clear the field when switching to Join Cooperative
+                                        _officeIdController.clear();
+                                      }
+                                    });
+                                  },
+                                  activeColor: const Color(0xFF4C3FF7),
+                                ),
+                              ],
+                            ),
+                            if (_useCustomSaccoId)
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const SizedBox(height: 8),
+                                  TextFormField(
+                                    controller: _officeIdController,
+                                    keyboardType: TextInputType.number,
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter.digitsOnly
+                                    ],
+                                    decoration: const InputDecoration(
+                                      hintText: 'Enter Cooperative ID',
+                                      border: UnderlineInputBorder(),
+                                      contentPadding:
+                                          EdgeInsets.symmetric(vertical: 8),
+                                    ),
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Cooperative ID is required';
+                                      }
+                                      if (int.tryParse(value) == null) {
+                                        return 'Please enter a valid Cooperative ID';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                ],
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 _buildTextField(
                   controller: _usernameController,
