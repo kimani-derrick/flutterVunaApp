@@ -253,7 +253,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text(
-                      'Merry Go Round Groups',
+                      'Groups',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,

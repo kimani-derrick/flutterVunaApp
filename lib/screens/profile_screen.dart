@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/cache_service.dart';
+import '../services/office_service.dart';
 import 'marketplace_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -13,14 +14,40 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  String? _selectedOffice;
-  // Dummy office data - in real app, this would come from an API
-  final List<Map<String, dynamic>> _offices = [
-    {'id': 1, 'name': 'Head Office - Nairobi'},
-    {'id': 2, 'name': 'Mombasa Branch'},
-    {'id': 3, 'name': 'Kisumu Branch'},
-    {'id': 4, 'name': 'Nakuru Branch'},
-  ];
+  String? _selectedOfficeId;
+  List<Map<String, dynamic>> _offices = [];
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadOffices();
+  }
+
+  Future<void> _loadOffices() async {
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+      final offices = await OfficeService.getAllOffices();
+      setState(() {
+        _offices = offices;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error loading offices: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +56,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
 
     final memberSince = DateTime.now().year.toString(); // Simplified for now
+    final currentOffice = _offices.firstWhere(
+      (office) => office['id'] == widget.user!.officeId,
+      orElse: () => {'name': 'Unknown Office'},
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -78,83 +109,106 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Icons.email, 'Email', widget.user!.emailAddress!),
               if (widget.user!.mobileNo != null)
                 _buildInfoItem(Icons.phone, 'Phone', widget.user!.mobileNo!),
-              _buildInfoItem(Icons.business, 'Office ID',
-                  widget.user!.officeId.toString()),
+              _buildInfoItem(Icons.business, 'Office', currentOffice['name']),
             ],
           ),
           const SizedBox(height: 16),
           _buildSection(
-            'Office Transfer Request',
+            'Office Transfer',
             [
-              const Text(
-                'Select the office you would like to transfer to:',
-                style: TextStyle(fontSize: 14, color: Colors.grey),
-              ),
-              const SizedBox(height: 12),
-              DropdownButtonFormField<String>(
-                value: _selectedOffice,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              if (_isLoading)
+                const Center(child: CircularProgressIndicator())
+              else ...[
+                const Text(
+                  'Select the office you would like to transfer to:',
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 14,
+                  ),
                 ),
-                hint: const Text('Select Target Office'),
-                items: _offices
-                    .where((office) => office['id'] != widget.user!.officeId)
-                    .map((office) => DropdownMenuItem(
-                          value: office['id'].toString(),
-                          child: Text(office['name']),
-                        ))
-                    .toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedOffice = value;
-                  });
-                },
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _selectedOffice == null
-                    ? null
-                    : () {
-                        // Show confirmation dialog
-                        showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            title: const Text('Confirm Transfer Request'),
-                            content: Text(
-                                'Are you sure you want to request transfer to ${_offices.firstWhere((office) => office['id'].toString() == _selectedOffice)['name']}?'),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: const Text('Cancel'),
-                              ),
-                              TextButton(
-                                onPressed: () {
-                                  // TODO: Implement actual transfer request
-                                  Navigator.pop(context);
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text(
-                                          'Transfer request submitted successfully'),
-                                      backgroundColor: Colors.green,
-                                    ),
-                                  );
-                                  setState(() {
-                                    _selectedOffice = null;
-                                  });
-                                },
-                                child: const Text('Confirm'),
-                              ),
-                            ],
-                          ),
-                        );
+                const SizedBox(height: 12),
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey.shade300),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButtonFormField<String>(
+                      value: _selectedOfficeId,
+                      decoration: const InputDecoration(
+                        contentPadding: EdgeInsets.symmetric(horizontal: 12),
+                        border: InputBorder.none,
+                      ),
+                      hint: const Text('Select Target Office'),
+                      items: _offices
+                          .where(
+                              (office) => office['id'] != widget.user!.officeId)
+                          .map((office) => DropdownMenuItem(
+                                value: office['id'].toString(),
+                                child: Text(office['name']),
+                              ))
+                          .toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedOfficeId = value;
+                        });
                       },
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 45),
+                    ),
+                  ),
                 ),
-                child: const Text('Submit Transfer Request'),
-              ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: _selectedOfficeId == null
+                      ? null
+                      : () {
+                          final selectedOffice = _offices.firstWhere(
+                            (office) =>
+                                office['id'].toString() == _selectedOfficeId,
+                          );
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text('Confirm Transfer'),
+                              content: Text(
+                                'Are you sure you want to request transfer to ${selectedOffice['name']}?',
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const Text('Cancel'),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    // TODO: Implement actual transfer request
+                                    Navigator.pop(context);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'Transfer request submitted successfully',
+                                        ),
+                                        backgroundColor: Colors.green,
+                                      ),
+                                    );
+                                    setState(() {
+                                      _selectedOfficeId = null;
+                                    });
+                                  },
+                                  child: const Text('Confirm'),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF4C3FF7),
+                    minimumSize: const Size(double.infinity, 45),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text('Submit Transfer Request'),
+                ),
+              ],
             ],
           ),
           const SizedBox(height: 16),
