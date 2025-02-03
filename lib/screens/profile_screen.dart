@@ -31,6 +31,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.initState();
     _currentUser = widget.user;
     _loadOffices();
+    _refreshUserData();
   }
 
   Future<void> _loadOffices() async {
@@ -156,25 +157,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
       debugPrint('✅ Transfer acceptance successful');
 
+      // Update both local state and cache
+      final updatedUser = UserModel(
+        id: _currentUser!.id,
+        accountNo: _currentUser!.accountNo,
+        displayName: _currentUser!.displayName,
+        officeId: int.parse(_selectedOfficeId!),
+        emailAddress: _currentUser!.emailAddress,
+        mobileNo: _currentUser!.mobileNo,
+      );
+
+      // Update cache
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('user_data', jsonEncode(updatedUser.toJson()));
+      debugPrint('💾 Updated user data in cache');
+
       setState(() {
         _isTransferring = false;
-        // Update the local user state with new office ID
-        if (_currentUser != null) {
-          _currentUser = UserModel(
-            id: _currentUser!.id,
-            accountNo: _currentUser!.accountNo,
-            displayName: _currentUser!.displayName,
-            officeId: int.parse(_selectedOfficeId!),
-            emailAddress: _currentUser!.emailAddress,
-            mobileNo: _currentUser!.mobileNo,
-          );
-          debugPrint('🔄 Updated user office ID to: $_selectedOfficeId');
-          // Clear selected office after successful transfer
-          _selectedOfficeId = null;
-          debugPrint('🔄 Cleared selected office');
-        }
+        _currentUser = updatedUser;
+        _selectedOfficeId = null;
       });
-      debugPrint('🔄 Setting transfer state to complete...');
+      debugPrint(
+          '🔄 Updated local state with new office ID: ${updatedUser.officeId}');
 
       if (mounted) {
         debugPrint('\n🎉 Transfer process completed successfully!');
@@ -210,6 +214,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  Future<void> _refreshUserData() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final userData = prefs.getString('user_data');
+      if (userData != null) {
+        final userJson = jsonDecode(userData);
+        setState(() {
+          _currentUser = UserModel.fromJson(userJson);
+        });
+        debugPrint('✅ Refreshed user data from cache');
+      }
+    } catch (e) {
+      debugPrint('❌ Error refreshing user data: $e');
+    }
+  }
+
+  Future<void> _onRefresh() async {
+    debugPrint('🔄 Pull-to-refresh triggered');
+    await Future.wait([
+      _loadOffices(),
+      _refreshUserData(),
+    ]);
+    setState(() {});
+    debugPrint('✅ Refresh completed');
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_currentUser == null) {
@@ -223,89 +253,92 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
 
     return Scaffold(
-      body: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          TopMenuBar(
-            title: 'Profile',
-            subtitle: 'Manage your account',
-            userName: _currentUser?.displayName,
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                CircleAvatar(
-                  radius: 50,
-                  backgroundImage: NetworkImage(
-                    'https://ui-avatars.com/api/?name=${Uri.encodeComponent(_currentUser!.displayName)}&background=6C5DD3&color=fff&size=200',
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  _currentUser!.displayName,
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                Text(
-                  'Member since $memberSince',
-                  style: const TextStyle(
-                    color: Colors.grey,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 32),
-                _buildSection(
-                  'Personal Information',
-                  [
-                    _buildInfoItem(
-                        Icons.person, 'Account No', _currentUser!.accountNo),
-                    if (_currentUser!.emailAddress != null)
-                      _buildInfoItem(
-                          Icons.email, 'Email', _currentUser!.emailAddress!),
-                    if (_currentUser!.mobileNo != null)
-                      _buildInfoItem(
-                          Icons.phone, 'Phone', _currentUser!.mobileNo!),
-                    _buildInfoItem(
-                        Icons.business, 'Office', currentOffice['name']),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                _buildOfficeTransferSection(),
-                const SizedBox(height: 16),
-                _buildSection(
-                  'Account Settings',
-                  [
-                    ElevatedButton(
-                      onPressed: () => _logout(context),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red[400],
-                        foregroundColor: Colors.white,
-                        minimumSize: const Size(double.infinity, 45),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: const Text(
-                        'Logout',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                  ],
-                ),
-                const SizedBox(height: 32),
-              ],
+      body: RefreshIndicator(
+        onRefresh: _onRefresh,
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            TopMenuBar(
+              title: 'Profile',
+              subtitle: 'Manage your account',
+              userName: _currentUser?.displayName,
             ),
-          ),
-        ],
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  CircleAvatar(
+                    radius: 50,
+                    backgroundImage: NetworkImage(
+                      'https://ui-avatars.com/api/?name=${Uri.encodeComponent(_currentUser!.displayName)}&background=6C5DD3&color=fff&size=200',
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    _currentUser!.displayName,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  Text(
+                    'Member since $memberSince',
+                    style: const TextStyle(
+                      color: Colors.grey,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 32),
+                  _buildSection(
+                    'Personal Information',
+                    [
+                      _buildInfoItem(
+                          Icons.person, 'Account No', _currentUser!.accountNo),
+                      if (_currentUser!.emailAddress != null)
+                        _buildInfoItem(
+                            Icons.email, 'Email', _currentUser!.emailAddress!),
+                      if (_currentUser!.mobileNo != null)
+                        _buildInfoItem(
+                            Icons.phone, 'Phone', _currentUser!.mobileNo!),
+                      _buildInfoItem(
+                          Icons.business, 'Office', currentOffice['name']),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  _buildOfficeTransferSection(),
+                  const SizedBox(height: 16),
+                  _buildSection(
+                    'Account Settings',
+                    [
+                      ElevatedButton(
+                        onPressed: () => _logout(context),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red[400],
+                          foregroundColor: Colors.white,
+                          minimumSize: const Size(double.infinity, 45),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: const Text(
+                          'Logout',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                  ),
+                  const SizedBox(height: 32),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
