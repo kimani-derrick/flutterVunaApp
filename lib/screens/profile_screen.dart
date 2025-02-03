@@ -24,10 +24,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   List<Map<String, dynamic>> _offices = [];
   bool _isLoading = false;
   bool _isTransferring = false;
+  UserModel? _currentUser;
 
   @override
   void initState() {
     super.initState();
+    _currentUser = widget.user;
     _loadOffices();
   }
 
@@ -157,6 +159,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       setState(() {
         _isTransferring = false;
+        // Update the local user state with new office ID
+        if (_currentUser != null) {
+          _currentUser = UserModel(
+            id: _currentUser!.id,
+            accountNo: _currentUser!.accountNo,
+            displayName: _currentUser!.displayName,
+            officeId: int.parse(_selectedOfficeId!),
+            emailAddress: _currentUser!.emailAddress,
+            mobileNo: _currentUser!.mobileNo,
+          );
+          debugPrint('🔄 Updated user office ID to: $_selectedOfficeId');
+          // Clear selected office after successful transfer
+          _selectedOfficeId = null;
+          debugPrint('🔄 Cleared selected office');
+        }
       });
       debugPrint('🔄 Setting transfer state to complete...');
 
@@ -168,8 +185,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             backgroundColor: Colors.green,
           ),
         );
-        debugPrint('🔄 Reloading offices list...');
-        _loadOffices();
+        debugPrint('🔄 Reloading offices list and refreshing UI...');
+        await _loadOffices();
+        setState(() {}); // Force UI refresh
       }
     } catch (e) {
       debugPrint('\n❌ ERROR during transfer process:');
@@ -195,13 +213,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.user == null) {
+    if (_currentUser == null) {
       return const Center(child: CircularProgressIndicator());
     }
 
     final memberSince = DateTime.now().year.toString();
     final currentOffice = _offices.firstWhere(
-      (office) => office['id'].toString() == widget.user!.officeId.toString(),
+      (office) => office['id'].toString() == _currentUser!.officeId.toString(),
       orElse: () => {'name': 'Unknown Office'},
     );
 
@@ -212,7 +230,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           TopMenuBar(
             title: 'Profile',
             subtitle: 'Manage your account',
-            userName: widget.user?.displayName,
+            userName: _currentUser?.displayName,
           ),
           Padding(
             padding: const EdgeInsets.all(16.0),
@@ -221,12 +239,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 CircleAvatar(
                   radius: 50,
                   backgroundImage: NetworkImage(
-                    'https://ui-avatars.com/api/?name=${Uri.encodeComponent(widget.user!.displayName)}&background=6C5DD3&color=fff&size=200',
+                    'https://ui-avatars.com/api/?name=${Uri.encodeComponent(_currentUser!.displayName)}&background=6C5DD3&color=fff&size=200',
                   ),
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  widget.user!.displayName,
+                  _currentUser!.displayName,
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -245,13 +263,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   'Personal Information',
                   [
                     _buildInfoItem(
-                        Icons.person, 'Account No', widget.user!.accountNo),
-                    if (widget.user!.emailAddress != null)
+                        Icons.person, 'Account No', _currentUser!.accountNo),
+                    if (_currentUser!.emailAddress != null)
                       _buildInfoItem(
-                          Icons.email, 'Email', widget.user!.emailAddress!),
-                    if (widget.user!.mobileNo != null)
+                          Icons.email, 'Email', _currentUser!.emailAddress!),
+                    if (_currentUser!.mobileNo != null)
                       _buildInfoItem(
-                          Icons.phone, 'Phone', widget.user!.mobileNo!),
+                          Icons.phone, 'Phone', _currentUser!.mobileNo!),
                     _buildInfoItem(
                         Icons.business, 'Office', currentOffice['name']),
                   ],
@@ -322,14 +340,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     items: _offices
                         .where((office) =>
                             office['id'].toString() !=
-                            widget.user!.officeId.toString())
+                            _currentUser!.officeId.toString())
                         .map((office) {
+                      final officeId = office['id'].toString();
+                      debugPrint(
+                          'Creating dropdown item for office: ${office['name']} with ID: $officeId');
                       return DropdownMenuItem<String>(
-                        value: office['id'].toString(),
+                        value: officeId,
                         child: Text(office['name']),
                       );
-                    }).toList(),
+                    }).toList()
+                      ..sort((a, b) => (a.child as Text).data!.compareTo(
+                          (b.child as Text).data!)), // Sort by office name
                     onChanged: (value) {
+                      debugPrint('Selected office ID: $value');
                       setState(() {
                         _selectedOfficeId = value;
                       });
