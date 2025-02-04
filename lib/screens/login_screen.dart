@@ -8,6 +8,7 @@ import 'forgot_password_screen.dart';
 import 'main_screen.dart';
 import 'dart:convert';
 import '../services/cache_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -320,7 +321,12 @@ class _LoginScreenState extends State<LoginScreen> {
           officeId: userData['officeId'],
         );
 
-        print('💾 User data processed successfully');
+        // Cache user data in both SharedPreferences and CacheService
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('user_data', jsonEncode(user.toJson()));
+        await CacheService.setData('user_data', user.toJson());
+
+        print('💾 User data processed and cached successfully');
         print(
             '🏠 Navigating to home screen with Office ID: ${userData['officeId']}');
 

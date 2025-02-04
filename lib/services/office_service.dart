@@ -12,7 +12,7 @@ class OfficeService {
     String username,
     String password,
   ) async {
-    final url = '${ApiConfig.baseUrl}/offices';
+    const url = '${ApiConfig.baseUrl}/offices';
     final credentials = ApiConfig.getBasicAuth(username, password);
 
     try {

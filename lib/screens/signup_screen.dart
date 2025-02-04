@@ -27,7 +27,7 @@ class _SignupScreenState extends State<SignupScreen> {
   bool _showPassword = false;
   bool _showConfirmPassword = false;
   bool _useCustomSaccoId = false;
-  int _defaultOfficeId = 1; // Default office ID from app auth payload
+  final int _defaultOfficeId = 1; // Default office ID from app auth payload
 
   @override
   void initState() {

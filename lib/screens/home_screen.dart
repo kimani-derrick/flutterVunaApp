@@ -468,7 +468,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             child: LayoutBuilder(
                                               builder: (context, constraints) {
                                                 // Calculate how many members we can show based on width
-                                                final double itemWidth =
+                                                const double itemWidth =
                                                     70; // Width of each member item
                                                 final int maxVisible =
                                                     (constraints.maxWidth /
