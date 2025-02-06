@@ -78,7 +78,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             TextFormField(
                               controller: _emailController,
                               decoration: InputDecoration(
-                                labelText: 'Email',
+                                labelText: 'Username',
                                 prefixIcon: const Icon(
                                     FontAwesomeIcons.envelope,
                                     size: 20,
@@ -298,14 +298,14 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       } else {
         setState(() {
-          _errorMessage = response['error'] ?? 'Authentication failed';
+          _errorMessage = 'Invalid Username or Password entered';
           _isLoading = false;
         });
         print('❌ Login failed: $_errorMessage');
       }
     } catch (e) {
       setState(() {
-        _errorMessage = 'An unexpected error occurred';
+        _errorMessage = 'Invalid Username or Password entered';
         _isLoading = false;
       });
       print('🔥 Error during login: $e');
