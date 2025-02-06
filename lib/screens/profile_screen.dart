@@ -204,8 +204,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error during transfer: $e'),
+          const SnackBar(
+            content: Text('Office transfer was not successful'),
             backgroundColor: Colors.red,
           ),
         );
