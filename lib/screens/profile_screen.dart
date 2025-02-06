@@ -74,6 +74,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
       return;
     }
 
+    // Check if transfer is from HEAD OFFICE
+    if (_currentUser?.officeId != 1) {
+      debugPrint(
+          '❌ Transfer cancelled: Transfers only allowed from Market Place');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+              'Office transfers are only allowed from Market Place to Cooperative'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     debugPrint('\n🚀 Starting client transfer process...');
     debugPrint('📋 Transfer Details:');
     debugPrint('- Client ID: ${widget.user!.id}');
@@ -300,8 +314,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       if (_currentUser!.mobileNo != null)
                         _buildInfoItem(
                             Icons.phone, 'Phone', _currentUser!.mobileNo!),
-                      _buildInfoItem(
-                          Icons.business, 'Office', currentOffice['name']),
+                      _buildInfoItem(Icons.business, 'Office',
+                          '${currentOffice['name']} (ID: ${_currentUser!.officeId})'),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -343,6 +357,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildOfficeTransferSection() {
+    // Only show transfer section if user is in HEAD OFFICE
+    if (_currentUser?.officeId != 1) {
+      return const Card(
+        child: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Office Transfer',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 16),
+              Text(
+                'Office transfers are only allowed from Market Place to Cooperative.',
+                style: TextStyle(color: Colors.grey),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
